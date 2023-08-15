@@ -8,4 +8,6 @@ To reproduce all panels in Figs. 2-4 and respective supplements, first download 
 
 Prior to running code, edit paths at the top of each script to match your local copy of the data. Scripts for v1.6.5.1 and v1.6.5.3 should be run in the same R session after running scripts for v1.6.5.2.
 
+Versions of R, MATLAB, and Python, as well as the packages used in all scripts are listed in the Methods section.
+
 Feel free to email Yogesh Goyal (yogesh.goyal@northwestern.edu) or Ian Mellis (im2613@cumc.columbia.edu) with any questions.
