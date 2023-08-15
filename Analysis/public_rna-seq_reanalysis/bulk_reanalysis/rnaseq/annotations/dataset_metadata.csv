@@ -1,0 +1,58 @@
+﻿GEO_ID,cell_type,species,num_targets,ko_genes,notes,control_samples,condition,pre_normalized
+GSE92872-1,jurkat,human,20,"LCK,LAT,DOK2,PTPN6,PTPN11,JUN,JUND,FOS,EGR1,EGR2,EGR3,NFKB1,NFKB2,RELA,NFATC1,NFAT5,NR4A1,RUNX2,ZAP70,EGR4",processed data downloaded,"Bulk_stimulated_CTRL00018,Bulk_stimulated_CTRL00022,Bulk_stimulated_CTRL00080,Bulk_stimulated_CTRL00087,Bulk_stimulated_CTRL00096,Bulk_stimulated_CTRL00196,Bulk_stimulated_CTRL00275,Bulk_stimulated_CTRL00320",_stimulated_,FALSE
+GSE92872-2,jurkat,human,20,"LCK,LAT,DOK2,PTPN6,PTPN11,JUN,JUND,FOS,EGR1,EGR2,EGR3,NFKB1,NFKB2,RELA,NFATC1,NFAT5,NR4A1,RUNX2,ZAP70,EGR4",processed data downloaded,"Bulk_unstimulated_CTRL00018,Bulk_unstimulated_CTRL00022,Bulk_unstimulated_CTRL00080,Bulk_unstimulated_CTRL00087,Bulk_unstimulated_CTRL00096,Bulk_unstimulated_CTRL00196,Bulk_unstimulated_CTRL00275,Bulk_unstimulated_CTRL00320",_unstimulated_,FALSE
+GSE151825,WM989,human,82,"ADCK3,BRD2,BRD8,BUB1B,CBFB,CDK11B,CHD7,CHEK1,CLK1,CSK,CSNK2A2,DEAF1,DOT1L,DSTYK,DYRK1A,EGFR,EP300,FEZF2,FOSL1,FOXC2,GATA4,GFI1,GLI4,HOXB6,INO80,IRF7,JUN,JUNB,KDM1A,KDM2A,KLF6,KMT2D,LATS2,LHX1,MAFA,MAP2K7,MAP3K1,MAPK1,MAPKAPK2,MITF,MTF1,MYBL1,NFAT5,NFATC2,NFYA,NR1I2,NSD1,PBRM1,PKN2,PLK1,PLK2,PRKAA1,PRKCE,PRKRIR,PRPF4B,PTK2,RAF1,RELB,RIPK2,RPL9,RUNX3,SETD1B,SIX5,SOX10,SOX5,SP1,SRC,SRF,STK11,SUV420H1,TADA2B,TGIF1,THAP11,TLK2,TP73,VDR,VEZF1,YBX1,ZBTB17,ZEB2,ZFP57,ZFX",suppplementary files,"WT-18,WT-19",na,TRUE
+GSE145653-1,ESC,mouse,73,"Zfp532,Smg7,Etv5,Alg13,Usp7,Dym,Fbxw7,Hprt,Mbd3,Pecam1,Mta3,Nsd1,Fryl,Cabin1,Tcf7l1,Msi2,Arid5b,Tet1,Myc,Nes,Mapk1,Pum1,Csnk1a1,Dido1,Ski,Ctbp2,Trp53,Ncor1,Rbpms,Fgfr1,Irak3,Etl4,Rbpj,Igf2bp1,Prkci,Kdm6a,Bcor,Gtf2ird1,Pitpnc1,Arih2,Hnrnph1,Rps6ka1,Foxp1,Mthfd1l,Ptpn11,Gabbr1,Fgfr2,Smg5,Ssr2,Tsc2,Pten,Leo1,Macf1,Smg6,Lmna,Eed,Cdk8,L3mbtl3,Myo10,Suz12,Apc,Jmjd1c,Zfp423,Sulf1,Nmt1,Raf1,Trim71,Usp9x,Zfp281,Aff3,Nmnat2,Atg13,Jarid2",processed data downloaded,"LL54674_2i_RC9,LL54679_2i_RC9",_2i_,FALSE
+GSE145653-2,ESC,mouse,73,"Zfp532,Smg7,Etv5,Alg13,Usp7,Dym,Fbxw7,Hprt,Mbd3,Pecam1,Mta3,Nsd1,Fryl,Cabin1,Tcf7l1,Msi2,Arid5b,Tet1,Myc,Nes,Mapk1,Pum1,Csnk1a1,Dido1,Ski,Ctbp2,Trp53,Ncor1,Rbpms,Fgfr1,Irak3,Etl4,Rbpj,Igf2bp1,Prkci,Kdm6a,Bcor,Gtf2ird1,Pitpnc1,Arih2,Hnrnph1,Rps6ka1,Foxp1,Mthfd1l,Ptpn11,Gabbr1,Fgfr2,Smg5,Ssr2,Tsc2,Pten,Leo1,Macf1,Smg6,Lmna,Eed,Cdk8,L3mbtl3,Myo10,Suz12,Apc,Jmjd1c,Zfp423,Sulf1,Nmt1,Raf1,Trim71,Usp9x,Zfp281,Aff3,Nmnat2,Atg13,Jarid2",processed data downloaded,"LL54672_N1_RC9,LL54675_N1_RC9",_N1_,FALSE
+GSE141171,A549,human,4,"WDR7,CCDC115,TMEM199,CMTR1",grein,"Control_PR8_rep1,Control_PR8_rep2,Control_PR8_rep3",_PR8_,FALSE
+GSE161466-1,dendritic,human,3,"CD14,LY96,TLR4",grein,"Donor_p_RPE65_neutral_control_KO_E_coli_LPS_rep_1,Donor_p_RPE65_neutral_control_KO_E_coli_LPS_rep_2","_E_coli_LPS_,Donor_p",FALSE
+GSE161466-2,dendritic,human,3,"CD14,LY96,TLR4",grein,"Donor_p_RPE65_neutral_control_KO_PBS_rep_1,Donor_p_RPE65_neutral_control_KO_PBS_rep_2","_PBS_,Donor_p",FALSE
+GSE161466-3,dendritic,human,3,"CD14,LY96,TLR4",grein,"Donor_q_RPE65_neutral_control_KO_E_coli_LPS_rep_1,Donor_q_RPE65_neutral_control_KO_E_coli_LPS_rep_2","_E_coli_LPS_,Donor_q",FALSE
+GSE161466-4,dendritic,human,3,"CD14,LY96,TLR4",grein,"Donor_q_RPE65_neutral_control_KO_PBS_rep_1,Donor_q_RPE65_neutral_control_KO_PBS_rep_2","_PBS_,Donor_q",FALSE
+GSE114212-1,ESC,mouse,1,Actb,grein,"ESCs_wt_1,ESCs_wt_2","ESCs_,_K.O._",FALSE
+GSE114212-2,MEF,mouse,1,Actg1,grein,"MEFs_wt_1,MEFs_wt_2","MEFs_,_K.O._",FALSE
+GSE114212-3,MKF,mouse,1,Fermt2,grein,"MKFs_Fermt2_floxed_1,MKFs_Fermt2_floxed_2","MKFs_,_K.O._",FALSE
+GSE128563,OCI-Ly1,human,6,"ID3,NFKBIA,IKZF5,OTUD5,UBR5,EP300",grein,"OCI_Ly1_CONTROL_sg1_01,OCI_Ly1_CONTROL_sg1_02,OCI_Ly1_CONTROL_sg2_01,OCI_Ly1_CONTROL_sg2_02",na,FALSE
+GSE153158,U937,human,5,"p50,p52,p65,REL,RELB",grein,"CTR_1_LPS,CTR_2_LPS,CTR_3_LPS",_LPS,FALSE
+GSE75515,HAP1,human,2,"SMARCB1,SMARCA4",grein,"WT_A,WT_B",na,FALSE
+GSE84504-1,hESC,human,1,RB1,grein,"hESC_Control_1,hESC_Control_2",hESC,FALSE
+GSE84504-2,teratoma,human,1,RB1,grein,"teratoma_Control_1,teratoma_Control_2",teratoma,FALSE
+GSE156082,DLD1 adenocarcinoma,human,1,KMT2A,grein,"DN-1:_DLD1_NTC_rep1_RNAseq,DN-2:_DLD1_NTC_rep2_RNAseq,DN-3:_DLD1_NTC_rep3_RNAseq",na,FALSE
+GSE154133,GBM EC,human,1,PAK4,grein,"5377-sg_Control,5391-sg_Control,5465-sg_Control",na,FALSE
+GSE148658,Jurkat,human,1,SIX6,grein,"Jurkat_ctrl_repl.1,Jurkat_ctrl_repl.2,Jurkat_ctrl_repl.3",na,FALSE
+GSE147076,BHT-101,human,1,ASH1L,grein,"WT1,WT2,WT3",na,FALSE
+GSE143725,MSC,human,1,PLEC,grein,"6-D0-Neg,7-D0-Neg,8-D0-Neg",na,FALSE
+GSE145313,melanoma,human,1,POLK,grein,"A375_Control_1,A375_Control_2,A375_Control_3",na,FALSE
+GSE138258,nasopharyngeal carcinoma,human,1,TP53,grein,"C666-1_Wta,C666-1_WTb,C666-1_WTc",na,FALSE
+GSE125756,HEPG2,human,1,TP53,grein,"HepG2_RNA_WT_ADRplus_rep1,HepG2_RNA_WT_ADRplus_rep2",_ADRplus_,FALSE
+GSE120233,G401 (kidney rhabdoid tumor),human,1,BRD9,grein,"G401_LacZ_rep1,G401_LacZ_rep2",na,FALSE
+GSE115687,HUDEP2,human,1,HRI,grein,"HUDEP2_nontargeting_sgRNA_undifferentiated_rep1,HUDEP2_nontargeting_sgRNA_undifferentiated_rep2,HUDEP2_nontargeting_sgRNA_differentiated_rep1,HUDEP2_nontargeting_sgRNA_differentiated_rep2",na,FALSE
+GSE86813,HeLa,human,2,"ATF7IP,SETDB1",grein,"Wild-type_rep1,Wild-type_rep2,Wild-type_rep3",na,FALSE
+GSE161043,fibroblasts,human,1,AF10,grein,"dH1f_sgControl_Rep1,dH1f_sgControl_Rep2,dH1f_sgControl_Rep3",na,FALSE
+GSE85887,HEK293T,human,1,YTHDF2,grein,"293T-1,293T-2,293T-3",na,FALSE
+GSE156471,K562,human,1,RBM48,grein,"7-VC-8-3:_K562_cells_Vector_Control_#1,8-VC-9-4:_K562_cells_Vector_Control_#2,9-VC-10-5:_K562_cells_Vector_Control_#3,10-VC-11-6:_K562_cells_Vector_Control_#4,11-VC-12-7:_K562_cells_Vector_Control_#5,12-VC-13-8:_K562_cells_Vector_Control_#6",na,FALSE
+GSE137129-1,H9 ESC,human,1,UGP2,grein,"H9_WT_B1,H9_WT_B2",H9_,FALSE
+GSE137129-2,NSC,human,1,UGP2,grein,"NSC_WT_B1,NSC_WT_B2",NSC_,FALSE
+GSE134048,HEK293T,human,1,TFAM,grein,"WT_RNA_NC1_CN1_1,WT_RNA_NC1_CN2_1,WT_RNA_NC2_CN1_2,WT_RNA_NC2_CN2_2,WT_RNA_NC3_CN1_3,WT_RNA_NC3_CN2_3",na,FALSE
+GSE131448,K562,human,1,STAG2,grein,"K562WT_Rep1,K562WT_Rep2,K562WT_Rep3",na,FALSE
+GSE130969-1,DLD1 ,human,1,Furin,grein,"DLD1_WT_replicate1,DLD1_WT_replicate2",DLD1,FALSE
+GSE130969-2,HCA7,human,1,Furin,grein,"HCA7_WT_replicate1,HCA7_WT_replicate2",HCA7,FALSE
+GSE130969-3,HT29,human,1,Furin,grein,"HT29_WT_replicate1,HT29_WT_replicate2",HT29,FALSE
+GSE128711-1,HFF,human,2,"P130,RB1",grein,"Control_0nM Dox-1,Control_0nM Dox-2",_0nM,FALSE
+GSE128711-2,HFF,human,2,"P130,RB1",grein,"Control_350nM Dox-1,Control_350nM Dox-2",_350nM,FALSE
+GSE125775-1,G401,human,1,BRD9,grein,"G401_LacZ_Day1_rep1,G401_LacZ_Day1_rep2",Day1,FALSE
+GSE125775-2,G401,human,1,BRD9,grein,"G401_LacZ_Day2_rep1,G401_LacZ_Day2_rep2",Day2,FALSE
+GSE125775-3,G401,human,1,BRD9,grein,"G401_LacZ_Day3_rep1,G401_LacZ_Day3_rep2",Day3,FALSE
+GSE125775-4,G401,human,1,BRD9,grein,"G401_LacZ_Day5_rep1,G401_LacZ_Day5_rep2",Day5,FALSE
+GSE121992,HUDEP2,human,1,MBD2,grein,"7_S11_L003:_RNA-seq_HUDEP2_sgSCR_post-differentiation_rep1,8_S12_L003:_RNA-seq_HUDEP2_sgSCR_post-differentiation_rep2,9_S13_L003:_RNA-seq_HUDEP2_sgSCR_post-differentiation_rep3",post-differentiation,FALSE
+GSE121680,corneal endothelium,human,1,ZEB1,grein,"WT_-LV_1,WT_-LV_2,WT_-LV_3",_-LV_,FALSE
+GSE175787-1,MCF10A,human,1,RhoC,grein,"MCF10A_wild_type_replicate_1,MCF10A_wild_type_replicate_2,MCF10A_wild_type_replicate_3,MCF10A_wild_type_replicate_4",MCF10A,FALSE
+GSE175787-2,MCF7,human,1,RhoC,grein,"MCF7_wild_type_replicate_1,MCF7_wild_type_replicate_2,MCF7_wild_type_replicate_3,MCF7_wild_type_replicate_4",MCF7,FALSE
+GSE175787-3,MDA231,human,1,RhoC,grein,"MDA231_wild_type_replicate_1,MDA231_wild_type_replicate_2,MDA231_wild_type_replicate_3,MDA231_wild_type_replicate_4",MDA231,FALSE
+GSE175787-4,SUM149,human,1,RhoC,grein,"SUM149_wild_type_replicate_1,SUM149_wild_type_replicate_2,SUM149_wild_type_replicate_3,SUM149_wild_type_replicate_4",SUM149,FALSE
+GSE175787-5,SUM190,human,1,RhoC,grein,"SUM190_wild_type_replicate_1,SUM190_wild_type_replicate_2,SUM190_wild_type_replicate_3,SUM190_wild_type_replicate_4",SUM190,FALSE
+GSE175787-6,VARI068,human,1,RhoC,grein,"VARI068_wild_type_replicate_1,VARI068_wild_type_replicate_2,VARI068_wild_type_replicate_3,VARI068_wild_type_replicate_4",VARI068,FALSE
+GSE162571,hESC,human,1,ZNF91,grein,"hESC_wt5_RNA_seq_rep_1,hESC_wt5_RNA_seq_rep_2,hESC_wt30_RNA_seq_rep_2,hESC_wt30_RNA_seq_rep_3",na,FALSE
+GSE154086-1,MCF10A,human,1,"RAD21,SMC3,STAG2",grein,"MCF10A_WT_replicate1,MCF10A_WT_replicate2,MCF10A_WT_replicate3",MCF10A,FALSE
+GSE154086-2,CMK,human,1,STAG2,grein,"CMK_WT_replicate1_con,CMK_WT_replicate2_con,CMK_WT_replicate3_con","CMK,_con",FALSE
+GSE122865,Tail tip,mouse,1,Lmna,grein,"EB_383L_mock:_pos/pos_Cas9/pos_treated_by_gMock,EB_384R_mock_S52:_pos/pos_Cas9/pos_treated_by_gMock",_pos/pos_Cas9/pos_,FALSE
