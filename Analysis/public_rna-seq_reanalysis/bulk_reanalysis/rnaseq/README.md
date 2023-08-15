@@ -11,12 +11,12 @@
 
 ### Setup Instructions:
 * download [author-provided DESeq2 dataset for GSE151825](https://drive.google.com/drive/folders/1Oz9S5Ydvu5K6QPuBMKXlM0BPKcfvaT0N) and deposit in `deseq_files` folder
-* setup environment using using `nitc-env.yaml` (example `conda env create -f nitc-env.yml`)
+* setup environment using using `nitc-env.yaml` (example `conda env create -f src/nitc-env.yaml`)
 * navigate to `rnaseq` folder before running scripts to prevent issues with local paths
 
 
 ### Reproducing Data:
-1. Run `src/deDeseq.py` to generate all DESeq files and populate the `deseq_files` folder
+1. Run `src/runDESeq.py` to generate all DESeq files and populate the `deseq_files` folder
 2. Run `src/main.py` to generate plots and tables for each dataset 
 
 
