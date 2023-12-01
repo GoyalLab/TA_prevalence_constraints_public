@@ -194,6 +194,9 @@ for (crispr_targ_gs in crispr_targets_gs[1:12]) {
 write.csv(stats_sc_targs, file = paste0(datadir, 'Frangieh2021/stats_sc_targs.csv'), quote = F)
 write.csv(stats_sc_NTCs, file = paste0(datadir, 'Frangieh2021/stats_sc_NTCs.csv'), quote = F)
 
+stats_sc_targs <- as_tibble(read.csv(paste0(datadir, 'Frangieh2021/stats_sc_targs.csv'), stringsAsFactors = F))
+stats_sc_NTCs <- as_tibble(read.csv(paste0(datadir, 'Frangieh2021/stats_sc_NTCs.csv'), stringsAsFactors = F))
+
 stats_sc_targs_long <-stats_sc_targs %>%
   dplyr::select(CRISPR_target_GS, sgRNA, GENE, mean_product, bimodality_coef) %>%
   pivot_longer(cols = mean_product:bimodality_coef, names_to = 'statistic', values_to = 'value')
@@ -271,6 +274,9 @@ stats_sc_targsYG_sums <- stats_sc_targsYG %>%
 
 
 # pull out the most dramatic CRISPR targets by difference between targ and NTC means
+stats_sc_NTCsYG_all <- stats_sc_NTCsYG_sums %>%
+  inner_join(stats_sc_targsYG_sums, by = c('CRISPR_target_GS', 'GENE')) 
+
 top_mean_delta <- stats_sc_NTCsYG_all %>%
   filter(mean_percpos_targ > 0) %>%
   mutate(delta_mean_mean = mean_mean_targ - mean_mean_NTC,
@@ -309,6 +315,17 @@ stats_sc_NTCsYG_all <- stats_sc_NTCsYG_sums %>%
               dplyr::select(CRISPR_target_GS, GENE) %>%
               mutate(istop100_percpos = 'TRUE'), by = c('CRISPR_target_GS', 'GENE')) %>%
   mutate(istop100_percpos = !is.na(istop100_percpos)) 
+
+stats_sc_NTCsYG_all %>%
+  group_by(CRISPR_target_GS, GENE) %>%
+  mutate(topStat = case_when(
+    istop100_mean & !istop100_percpos ~ 'istop100_meanOnly',
+    !istop100_mean & istop100_percpos ~ 'istop100_percposOnly',
+    istop100_mean & istop100_percpos ~ 'istop100_meanAndpercpos',
+    !istop100_mean & !istop100_percpos ~ 'istop100_neither')) %>%
+  dplyr::select(CRISPR_target_GS, GENE, topStat) %>%
+  group_by(topStat) %>%
+  summarise(npairs = length(topStat))
 
 multi_nParas_top50_mean <- stats_sc_NTCsYG_all %>%
   filter(mean_percpos_targ > 0) %>%
@@ -616,6 +633,20 @@ stats_sc_NTCsYG_all_manycells <- stats_sc_NTCsYG_sums %>%
               mutate(istop100_percpos = 'TRUE'), by = c('CRISPR_target_GS', 'GENE')) %>%
   mutate(istop100_percpos = !is.na(istop100_percpos)) 
 
+top100_tbl_manycells <- stats_sc_NTCsYG_all_manycells %>%
+  group_by(CRISPR_target_GS, GENE) %>%
+  mutate(topStat = case_when(
+    istop100_mean & !istop100_percpos ~ 'istop100_meanOnly',
+    !istop100_mean & istop100_percpos ~ 'istop100_percposOnly',
+    istop100_mean & istop100_percpos ~ 'istop100_meanAndpercpos',
+    !istop100_mean & !istop100_percpos ~ 'istop100_neither')) %>%
+  dplyr::select(CRISPR_target_GS, GENE, topStat) %>%
+  group_by(topStat) %>%
+  summarise(npairs = length(topStat)) %>%
+  ungroup() %>%
+  mutate(totalPairs = sum(npairs))
+write.csv(top100_tbl_manycells, file = paste0(datadir, 'Frangieh2021/stat_graphs/top100_tbl_manycells.csv'), quote = F, row.names = F)
+  
 multi_top100_bymean_manycells_manycells <- stats_sc_NTCsYG_all_manycells %>%
   inner_join(celldat_manycells, by = 'CRISPR_target_GS') %>%
   filter(istop100_mean) %>%
@@ -623,6 +654,32 @@ multi_top100_bymean_manycells_manycells <- stats_sc_NTCsYG_all_manycells %>%
   summarise(nt100 = length(CRISPR_target_GS)) %>%
   arrange(-nt100) %>%
   filter(nt100 > 1)
+
+multi_top100_bypercposAndmean075_manycells_manycells_A <- stats_sc_NTCsYG_all_manycells %>%
+  inner_join(celldat_manycells, by = 'CRISPR_target_GS') %>%
+  filter(istop100_percpos) %>%
+  dplyr::select(CRISPR_target_GS, GENE) 
+multi_top100_bypercposAndmean075_manycells_manycells_B <- stats_sc_NTCsYG_all_manycells %>%
+  inner_join(celldat_manycells, by = 'CRISPR_target_GS') %>%
+  filter(istop100_mean, mean_percpos_NTC > 0.75) %>%
+  dplyr::select(CRISPR_target_GS, GENE) 
+
+nParaTab_manycells<-stats_sc_NTCsYG_all_manycells %>%
+  dplyr::select(CRISPR_target_GS, GENE) %>%
+  group_by(CRISPR_target_GS) %>%
+  summarise(nParalogs = length(GENE))
+
+multi_top100_bypercposAndmean075_manycells_manycells <- full_join(multi_top100_bypercposAndmean075_manycells_manycells_A,
+                                                                  multi_top100_bypercposAndmean075_manycells_manycells_B) %>%
+  group_by(CRISPR_target_GS) %>%
+  summarise(nt100 = length(CRISPR_target_GS)) %>%
+  arrange(-nt100) %>%
+  filter(nt100 > 1) %>%
+  left_join(nParaTab_manycells) %>%
+  mutate(perc_top100 = nt100/nParalogs) %>%
+  arrange(-perc_top100)
+write.csv(multi_top100_bypercposAndmean075_manycells_manycells, file = paste0(datadir, 'Frangieh2021/stat_graphs/top100_CRISPRtargets_nParasTop100.csv'), quote = F, row.names = F)
+
   
 set.seed(7648)
 perPara_percposVpercpos_manycells <- ggplot() +
@@ -943,14 +1000,14 @@ for (ent in 1:nrow(regulons)) {
     filter(GENE %in% c(tf, pa, dn)) %>%
     mutate(cellType = 'controls')
   
-  temp_hists <- ggplot() +
-    facet_grid(cellType~paste0(type,'\n',GENE), scales = 'free_y') +
-    geom_histogram(data = bind_rows(temp_targ_vals, temp_NTC_vals), aes(abundance)) +
-    theme_classic() +
-    geom_text(data = )
+  # temp_hists <- ggplot() +
+  #   facet_grid(cellType~paste0(type,'\n',GENE), scales = 'free_y') +
+  #   geom_histogram(data = bind_rows(temp_targ_vals, temp_NTC_vals), aes(abundance)) +
+  #   theme_classic() +
+  #   geom_text(data = )
   
-  ggsave(temp_hists, file = paste0(datadir, 'Frangieh2021/stat_graphs/regulon_graphs/hists_', tf, '_', pa, '_', dn, '.pdf'), width = 6, height = 4)
-  ggsave(temp_hists, file = paste0(datadir, 'Frangieh2021/stat_graphs/regulon_graphs/hists_', tf, '_', pa, '_', dn, '.svg'), width = 6, height = 4)
+  # ggsave(temp_hists, file = paste0(datadir, 'Frangieh2021/stat_graphs/regulon_graphs/hists_', tf, '_', pa, '_', dn, '.pdf'), width = 6, height = 4)
+  # ggsave(temp_hists, file = paste0(datadir, 'Frangieh2021/stat_graphs/regulon_graphs/hists_', tf, '_', pa, '_', dn, '.svg'), width = 6, height = 4)
   
   # check change in percpos and mean per downstream target 
   if(nrow(temp_NTC_vals %>% filter(GENE == dn))>0) {
