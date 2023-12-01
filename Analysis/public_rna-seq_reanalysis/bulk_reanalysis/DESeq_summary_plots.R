@@ -1,5 +1,7 @@
 library(tidyverse)
 library(svglite)
+library(magrittr)
+library(ggrepel)
 
 setwd('~/code/grn_nitc/rnaseq/')
 
@@ -8,7 +10,7 @@ datasets2 <- as_tibble(list.files('de_analysis/p_only/percent_upregulated/tabula
   separate(value, 'GEO_ID', '.csv')
 
 #secondary conditions (not for main analysis)
-alt_sets <- c('GSE92872-2', 'GSE145653-2', 'GSE161466-2', 'GSE161466-3', 'GSE161466-4', 'GSE175787-3', 'GSE175787-4', 'GSE175787-5', 'GSE175787-6')
+alt_sets <- c('GSE130969-2', 'GSE92872-2', 'GSE145653-2', 'GSE161466-2', 'GSE161466-3', 'GSE161466-4', 'GSE175787-3', 'GSE175787-4', 'GSE175787-5', 'GSE175787-6')
 
 datasets3 <- datasets %>% 
   inner_join(datasets2) %>%
@@ -286,6 +288,41 @@ dev.off()
 svglite('de_analysis/summary_plots_drafts/fc2plot_onlySigDE_splitY_p_fc.svg', width = 11, height = 6)
 grid.arrange(fc2plot_sDE_p_fc_top, fc2plot_sDE_p_fc_bot, nrow = 2, heights = c(2,3))
 dev.off()
+
+perup_summary_p_fc_nonhit <- perup_summary_p_fc %>% filter(!(KO_Gene %in% fc2dat$KO_Gene))
+fc2dat_nh <- list()
+corparas_nh <- list()
+for (ko in perup_summary_p_fc_nonhit$KO_Gene) {
+  
+  t_hit <- perup_summary_p_fc_nonhit %>% filter(KO_Gene == ko)
+  
+  tda <- as_tibble(read.csv(paste0('de_analysis/p_fc/FC2/tabular_format/', t_hit$GEO_ID,'.csv'))) %>%
+    filter(KO_Gene == ko) %>%
+    mutate(GEO_ID = t_hit$GEO_ID) %>%
+    dplyr::select(-X) %>%
+    filter(!is.na(padj))
+  
+  if(is.null(dim(fc2dat_nh))) {
+    fc2dat_nh <- tda
+  } else {
+    fc2dat_nh %<>% bind_rows(tda)
+  }
+  
+  if (length(tda$Perc_ID) > 2) {
+    cort <- cor.test(tda$Perc_ID, tda$FC2)
+    if(is.null(dim(corparas_nh))){
+      corparas_nh <- tibble(KO_Gene = ko,
+                         Cor = cort$estimate,
+                         P.val = cort$p.value)
+    } else {
+      corparas_nh %<>% bind_rows(tibble(KO_Gene = ko,
+                                     Cor = cort$estimate,
+                                     P.val = cort$p.value))
+    }
+  }
+}
+
+write.csv(fc2dat_nh, file ='de_analysis/summary_plots_drafts/foldchanges_nonhitsonly_anypara.csv', quote = F, row.names = F)
 
 
 
