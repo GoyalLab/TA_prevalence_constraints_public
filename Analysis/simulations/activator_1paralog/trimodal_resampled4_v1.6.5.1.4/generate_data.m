@@ -2,17 +2,17 @@
 % diploid, alleles independent, NITC affects ancestral and paralog
 % substrate competition between ancestral and paralog at target burst-on
 
-% No basal paralog expression
-% 1.6.5.2 samples parameters on the log scale rather than linear in 1.6.5
-% log10(2) = 0.301, log10(5) = 0.699
+% Confirm 3-mode run for v1.6.5 pset 2174
+% New resampling with minimum decision tree-derived subspace ranges
+% this is v1.6.5.1.4 - 50th percentile radii
 
 % EDIT THESE OUTPUT DIRECTORIES AS NEEDED
-% trace_outdir = '/Volumes/IAMYG2/grn_nitc_data/v1.6.3/';
-% psc_outdir = '~/OneDrive/projects/grn_nitc/grn_nitc_data/v1.6.3/';
+% trace_outdir = '/Volumes/IAMYG2/grn_nitc_data/v1.6.2/';
+% psc_outdir = '~/OneDrive/projects/grn_nitc/grn_nitc_data/v1.6.2/';
 
-trace_outdir = '/Volumes/IAMYG1/grn_nitc_data/v1.6.5.2/';
-psc_outdir = '~/code/grn_nitc/nitc_3node_v1.6.5.2/';
-psc_refdir = '~/code/grn_nitc/nitc_3node_v1.6.5.2/';
+trace_outdir = '~/Documents/grn_nitc_data/simulations/v1.6.5.1.4/fullTraces/';
+psc_outdir = '~/Documents/grn_nitc_data/simulations/v1.6.5.1.4/samples/';
+% psc_refdir = '~/code/grn_nitc/nitc_3node_v1.6.5.1/refs/';
 
 if ~exist(trace_outdir, 'dir')
     mkdir(trace_outdir)
@@ -40,49 +40,34 @@ end
 % - A1_Aprime_prodon_ratio = d_Aprime_B1 = scalar multiple descrease in
 % production rate of B1 burst when turned on by para instead of orig
 
+% get parameter hypercube ranges
+range_table = readtable('~/Documents/grn_nitc_data/simulations/v1.6.5.1.2/more_larger_resamp_bounds.csv');
+%%
 rng(8363);
 
-nruns = 10000;
+nruns = 100;
 
 fseeds = 358238:4:3409332;
-simseeds = fseeds(1:nruns);
+simseeds = fseeds(1:(nruns+1));
 
-% min_range = [repmat(0.1,1,1),...        %basal_nitc_on_ratio (0.1,10) - is 10 high enough?
-%     repmat(0.01,1,1),...                %onbasalA1_off_ratio (0.01,2) - per Larsson this is the bulk of the distribution (very quick off-burst)
-%     repmat(0.1,1,1),...                 %A1_Aprime1_addon_ratio (0.1,10)
-%     repmat(0.1,1,1),...                 %A1_Aprime_prodon_ratio (0.1,10)
-%     repmat(1,1,1),...                   %r_prod_on (1,1000)
-%     repmat(0.1,1,1),...                 %r_addon_byA1_B1 (0.1,10)
-%     repmat(0.1,1,1),...                 %n (Hill coefficient n) (0.1,5) too large a range? I think so, but having some non-linearity is good. Perhaps ok with 10000 paramsets.
-%     repmat(0.1,1,1)];                   %r_onbasal_A1 (0.1, 10)
-% %                                       
-min_range = [repmat(-1,1,1),...         %basal_nitc_on_ratio (0.1,10) - is 10 high enough?
-    repmat(-2,1,1),...                  %onbasalA1_off_ratio (0.01,2) - per Larsson this is the bulk of the distribution (very quick off-burst)
-    repmat(-1,1,1),...                  %A1_Aprime1_addon_ratio (0.1,10)
-    repmat(-1,1,1),...                  %A1_Aprime_prodon_ratio (0.1,10)
-    repmat(0,1,1),...                   %r_prod_on (1,1000)
-    repmat(-1,1,1),...                  %r_addon_byA1_B1 (0.1,10)
-    repmat(-1,1,1),...                  %n (Hill coefficient n) (0.1,5) too large a range? I think so, but having some non-linearity is good. Perhaps ok with 10000 paramsets.
-    repmat(-1,1,1)];                    %r_onbasal_A1 (0.1, 10)
+min_range = [repmat(range_table.min_val_50_log10(1),1,1),...        %basal_nitc_on_ratio (0.1,10) - is 10 high enough?
+    repmat(range_table.min_val_50_log10(2),1,1),...                %onbasalA1_off_ratio (0.01,1) - per Larsson this is the bulk of the distribution (very quick off-burst)
+    repmat(range_table.min_val_50_log10(3),1,1),...                 %A1_Aprime1_addon_ratio (0.1,10)
+    repmat(range_table.min_val_50_log10(4),1,1),...                 %A1_Aprime_prodon_ratio (0.1,10)
+    repmat(range_table.min_val_50_log10(5),1,1),...                   %r_prod_on (1,1000)
+    repmat(range_table.min_val_50_log10(6),1,1),...                 %r_addon_byA1_B1 (0.1,5)
+    repmat(range_table.min_val_50_log10(7),1,1),...                 %n (Hill coefficient n) (0.1,10) too large a range? I think so, but having some non-linearity is good. Perhaps ok with 10000 paramsets.
+    repmat(range_table.min_val_50_log10(8),1,1)];                   %r_onbasal_A1 (0.1, 10)
 %                                       
-% max_range = [repmat(10,1,1),...         %basal_nitc_on_ratio (0.1,10) - is 10 high enough?
-%     repmat(2,1,1),...                   %onbasalA1_off_ratio (0.01,2) - per Larsson this is the bulk of the distribution (very quick off-burst)
-%     repmat(10,1,1),...                  %A1_Aprime1_addon_ratio (0.1,10)
-%     repmat(10,1,1),...                  %A1_Aprime_prodon_ratio (0.1,10)
-%     repmat(1000,1,1),...                %r_prod_on (1,1000)
-%     repmat(10,1,1),...                  %r_addon_byA1_B1 (0.1,10)
-%     repmat(5,1,1),...                   %n (Hill coefficient n) (0.1,5) too large a range?
-%     repmat(10,1,1)];                    %r_onbasal_A1 (0.1, 10)
-% 
-max_range = [repmat(1,1,1),...          %basal_nitc_on_ratio (0.1,10) - is 10 high enough?
-    repmat(0.301,1,1),...               %onbasalA1_off_ratio (0.01,2) - per Larsson this is the bulk of the distribution (very quick off-burst)
-    repmat(1,1,1),...                   %A1_Aprime1_addon_ratio (0.1,10)
-    repmat(1,1,1),...                   %A1_Aprime_prodon_ratio (0.1,10)
-    repmat(3,1,1),...                   %r_prod_on (1,1000)
-    repmat(1,1,1),...                   %r_addon_byA1_B1 (0.1,10)
-    repmat(0.699,1,1),...               %n (Hill coefficient n) (0.1,5) too large a range?
-    repmat(1,1,1)];                     %r_onbasal_A1 (0.1, 10)
 
+max_range = [repmat(range_table.max_val_50_log10(1),1,1),...        %basal_nitc_on_ratio (0.1,10) - is 10 high enough?
+    repmat(range_table.max_val_50_log10(2),1,1),...                %onbasalA1_off_ratio (0.01,1) - per Larsson this is the bulk of the distribution (very quick off-burst)
+    repmat(range_table.max_val_50_log10(3),1,1),...                 %A1_Aprime1_addon_ratio (0.1,10)
+    repmat(range_table.max_val_50_log10(4),1,1),...                 %A1_Aprime_prodon_ratio (0.1,10)
+    repmat(range_table.max_val_50_log10(5),1,1),...                   %r_prod_on (1,1000)
+    repmat(range_table.max_val_50_log10(6),1,1),...                 %r_addon_byA1_B1 (0.1,5)
+    repmat(range_table.max_val_50_log10(7),1,1),...                 %n (Hill coefficient n) (0.1,10) too large a range? I think so, but having some non-linearity is good. Perhaps ok with 10000 paramsets.
+    repmat(range_table.max_val_50_log10(8),1,1)];                   %r_onbasal_A1 (0.1, 10)
 
 latinhyp_log = lhsdesign_modified(nruns, min_range, max_range);
 
@@ -565,33 +550,33 @@ for i = 1:3
     
 end
 
-% %% comparison w ref doesn't work due to seed handling by sims
-% sp1ref_f = [psc_refdir, 'initialsim_species', num2str(1), '_q300.csv'];
-% sp2ref_f = [psc_refdir, 'initialsim_species', num2str(2), '_q300.csv'];
-% sp3ref_f = [psc_refdir, 'initialsim_species', num2str(3), '_q300.csv'];
-% 
-% sp1new_f = [psc_outdir, 'initialsim_species', num2str(1), '_q300.csv'];
-% sp2new_f = [psc_outdir, 'initialsim_species', num2str(2), '_q300.csv'];
-% sp3new_f = [psc_outdir, 'initialsim_species', num2str(3), '_q300.csv'];
-% 
-% sp1r = readtable(sp1ref_f);
-% sp2r = readtable(sp2ref_f);
-% sp3r = readtable(sp3ref_f);
-% 
-% sp1n = readtable(sp1new_f);
-% sp2n = readtable(sp2new_f);
-% sp3n = readtable(sp3new_f);
-% 
-% isequal(sp1r, sp1n)
-% isequal(sp2r, sp2n)
-% isequal(sp3r, sp3n)
+%%
+sp1ref_f = [psc_refdir, 'initialsim_species', num2str(1), '_q300.csv'];
+sp2ref_f = [psc_refdir, 'initialsim_species', num2str(2), '_q300.csv'];
+sp3ref_f = [psc_refdir, 'initialsim_species', num2str(3), '_q300.csv'];
+
+sp1new_f = [psc_outdir, 'initialsim_species', num2str(1), '_q300.csv'];
+sp2new_f = [psc_outdir, 'initialsim_species', num2str(2), '_q300.csv'];
+sp3new_f = [psc_outdir, 'initialsim_species', num2str(3), '_q300.csv'];
+
+sp1r = readtable(sp1ref_f);
+sp2r = readtable(sp2ref_f);
+sp3r = readtable(sp3ref_f);
+
+sp1n = readtable(sp1new_f);
+sp2n = readtable(sp2new_f);
+sp3n = readtable(sp3new_f);
+
+isequal(sp1r, sp1n)
+isequal(sp2r, sp2n)
+isequal(sp3r, sp3n)
 
 %% Next 100 sets. Get average time per sim for planning purposes.
 tic
 
 s_store = cell(200,1);
 
-parfor i = 4:103
+parfor i = 4:100
     
     % Set seed
     %
@@ -802,7 +787,7 @@ parfor i = 4:103
     s_store{i} = savespecies;
 end
 
-for i = 4:103
+for i = 4:100
     % rate ratios
     % r_onbasal_A1/r_nitc = relative on-rates of wt A1 and NITC-regulated
     % alleles
@@ -1010,7 +995,7 @@ toc;
 
 %% Remainder of 10000 sets. DO NOT PROCEED WITH THIS CHUNK UNTIL REVIEWING RESULTS WITH IAM
 
-bounds = [103,300:200:9900,10000];
+bounds = [103,300:200:10000];
 
 tic
 
@@ -1022,13 +1007,9 @@ for ind = 1:(length(bounds)-1)
     
     s_store = cell(200,1); % 2GB chunks in working memory at a time
     
-    lenbd = bounds(ind+1) - (bounds(ind));
-    
-    lowbd = bounds(ind);
-    
-    parfor j = 1:lenbd
+    for i = (bounds(ind)+1):bounds(ind+1)
         
-        i = j+lowbd;
+        storeind = i-refind;
         
         % Set seed
         %
@@ -1236,7 +1217,7 @@ for ind = 1:(length(bounds)-1)
         %     [times,savespecies] = gillespie_burstshistomex_B3state(0,sp_1,ra_1,pr_1,sum(clock*100),maxgillespie,maxgillespie);
         [times,savespecies] = gillespie_burstshistomex_B3state(0,sp_1,ra_1,pr_1,simseeds(i),maxgillespie,maxgillespie);
         
-        s_store{j} = savespecies;
+        s_store{storeind} = savespecies;
     end
     
     for i = (bounds(ind)+1):bounds(ind+1)

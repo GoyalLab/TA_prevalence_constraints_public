@@ -17,22 +17,23 @@ source('~/code/grn_nitc/Functions/grn_analysis_utilities.R')
 
 
 # edit as needed
-datadir52 <- '/Volumes/IAMYG1/grn_nitc_data/v1.6.5.2/samples/'
-plotdir52 <- '/Volumes/IAMYG1/grn_nitc_data/v1.6.5.2/exploratory_analysis/'
-setwd(datadir52)
+datadir521 <- '~/Documents/grn_nitc_data/simulations/v1.6.5.2.1/samples/'
+plotdir521 <- '~/Documents/grn_nitc_data/simulations/v1.6.5.2.1/exploratory_analysis/'
+plotdir52 <- '~/Documents/grn_nitc_data/simulations/v1.6.5.2/'
+setwd(datadir521)
 
-if(!dir.exists(plotdir52)){
-  dir.create(plotdir52)
+if(!dir.exists(plotdir521)){
+  dir.create(plotdir521)
 }
-paramsets52 <- 1:10000
-lhs_sets52 <- as_tibble(read.csv('latinhyp_sampledSets.csv')) 
-lhs_sets52 %<>%
-  mutate(paramset = 1:nrow(lhs_sets52))
+paramsets521 <- 1:100
+lhs_sets521 <- as_tibble(read.csv('latinhyp_sampledSets.csv')) 
+lhs_sets521 %<>%
+  mutate(paramset = 1:nrow(lhs_sets521))
 
 # calculate stats
-allstats52 <- list()
-allparams52 <- list()
-for (paramset in paramsets52){
+allstats521 <- list()
+allparams521 <- list()
+for (paramset in paramsets521){
   
   # cat(paste0('Working on ', as.character(paramset), '\n'))
   
@@ -51,14 +52,14 @@ for (paramset in paramsets52){
     dplyr::select(A1, Aprime1, Anonsense1, B1, paramset, time, mutated_alleles) %>%
     pivot_longer(cols = A1:B1, names_to = 'product', values_to = 'abundance')
   
-  if(paramset %% 100 == 0) {
+  if(paramset %% 1 == 0) {
     cat(paste0('Working on ', as.character(paramset), '\n'))
-    # dist_plot<-ggplot(species_sample, aes(abundance)) +
-    #   geom_histogram() +
-    #   facet_grid(mutated_alleles~product) +
-    #   ggtitle(paste0('Parameter set ', as.character(paramset))) +
-    #   theme_classic()
-    # ggsave(dist_plot, file = paste0(plotdir52, 'distributions_q300_v1.6.5.2_paramset_', as.character(paramset), '.pdf'))
+    dist_plot<-ggplot(species_sample, aes(abundance)) +
+      geom_histogram() +
+      facet_grid(mutated_alleles~product) +
+      ggtitle(paste0('Parameter set ', as.character(paramset))) +
+      theme_classic()
+    ggsave(dist_plot, file = paste0(plotdir521, 'distributions_q300_v1.6.5.2.1_paramset_', as.character(paramset), '.pdf'))
   }
   
   spstats <- species_sample %>%
@@ -115,26 +116,26 @@ for (paramset in paramsets52){
   
   spstats %<>% inner_join(entr_temp, by = c('mutated_alleles', 'product', 'paramset'))
   
-  if(is.null(dim(allstats52))) {
-    allstats52 <- spstats
+  if(is.null(dim(allstats521))) {
+    allstats521 <- spstats
   } else {
-    allstats52 %<>% bind_rows(spstats)
+    allstats521 %<>% bind_rows(spstats)
   }
   
-  if(is.null(dim(allparams52))) {
-    allparams52 <- params
+  if(is.null(dim(allparams521))) {
+    allparams521 <- params
   } else {
-    allparams52 %<>% bind_rows(params)
+    allparams521 %<>% bind_rows(params)
   }
   
 }
-write.csv(allstats52 %>% mutate(version = '1.6.5.2'), file = paste0(plotdir52, 'summary_stats.csv'), row.names = F)
-allstats52 <- as_tibble(read.csv(paste0(plotdir52, 'summary_stats.csv'), stringsAsFactors = F, header = T))
+write.csv(allstats521 %>% mutate(version = '1.6.5.2.1'), file = paste0(plotdir521, 'summary_stats.csv'), row.names = F)
+allstats521 <- as_tibble(read.csv(paste0(plotdir521, 'summary_stats.csv'), stringsAsFactors = F, header = T))
 
 # temp: collate all data
-setwd(datadir52)
+setwd(datadir521)
 all_species_q300 <- list()
-for (paramset in paramsets52){
+for (paramset in paramsets521){
   
   if(paramset %% 100 == 0) {
     cat(paste0('Working on ', as.character(paramset), '\n'))
@@ -161,21 +162,21 @@ for (paramset in paramsets52){
   
 }
 
-write.csv(all_species_q300, file = paste0('/Volumes/IAMYG1/grn_nitc_data/v1.6.5.2/all_species_q300.csv'))
-all_species_q300 <- as_tibble(read.csv(paste0('/Volumes/IAMYG1/grn_nitc_data/v1.6.5.2/all_species_q300.csv'), stringsAsFactors = F, header = T))
+write.csv(all_species_q300, file = paste0(datadir521, 'all_species_q300.csv'))
+all_species_q300 <- as_tibble(read.csv(paste0(datadir521, 'all_species_q300.csv'), stringsAsFactors = F, header = T))
 
 # summary stats draft1
-allstats_full52 <- allstats52 %>% mutate(version = '1.6.5.2')
-allparams_full52 <- allparams52 %>% mutate(paramset = 1:10000, version = '1.6.5.2')
-lhs_sets_full52 <- lhs_sets52 %>% mutate(version = '1.6.5.2')
+allstats_full521 <- allstats521 %>% mutate(version = '1.6.5.2.1')
+allparams_full521 <- allparams521 %>% mutate(paramset = 1:100, version = '1.6.5.2.1')
+lhs_sets_full521 <- lhs_sets521 %>% mutate(version = '1.6.5.2.1')
 
 pseud = 0.01
 
-allstats_full52 %<>% mutate(skewness = ifelse(is.na(skewness), 0, skewness))
+allstats_full521 %<>% mutate(skewness = ifelse(is.na(skewness), 0, skewness))
 
-write.csv(allstats_full52, file = paste0(plotdir52, 'summary_stats.csv'), row.names = F)
+write.csv(allstats_full521, file = paste0(plotdir521, 'summary_stats.csv'), row.names = F)
 
-compared_stats52 <- allstats_full52 %>% 
+compared_stats521 <- allstats_full521 %>% 
   group_by(version, paramset, product, mutated_alleles) %>% 
   pivot_longer(names_to = 'stat', values_to = 'value', cols = mean_product:entropy90) %>% 
   pivot_wider(names_from = mutated_alleles, values_from = value) %>% 
@@ -187,7 +188,7 @@ compared_stats52 <- allstats_full52 %>%
          delta20 = `2`-`0`) %>%
   dplyr::select(-c(`0`:`2`)) %>% 
   pivot_longer(names_to = 'compare', values_to = 'diff', cols = lfc10:delta20) %>%
-  inner_join(allstats_full52 %>% 
+  inner_join(allstats_full521 %>% 
                dplyr::select(mutated_alleles, product, paramset, version, mean_product) %>%
                pivot_wider(names_from = mutated_alleles, values_from = mean_product), by = c('product', 'paramset', 'version')) %>%
   mutate(mean_denom = case_when(
@@ -198,54 +199,54 @@ compared_stats52 <- allstats_full52 %>%
 #compared_stats %<>% ungroup() %>% inner_join(lhs_sets_fall %>% filter(Hill_coefficient_n < 5) %>% dplyr::select(version, paramset), by = c('version','paramset'))
 
 # plot wt/mut summary stats against mean expression
-
-unistats52<-unique(compared_stats52$stat)
-
-for (st in unistats52) {
-  
-  pvs1 <- ggplot(allstats_full52 %>% inner_join(lhs_sets_full52, by = c('version', 'paramset')) %>% filter(product == 'B1', Hill_coefficient_n<5)) + 
-    geom_point(aes(mean_product, eval(as.symbol(st)))) +
-    geom_vline(aes(xintercept = 10), linetype = 2) +
-    # geom_text(aes(mean_product, eval(as.symbol(st)), label = as.character(paramset))) +
-    facet_grid(~mutated_alleles) +
-    theme_classic() +
-    ggtitle(paste0(st, ' vs mean'))
-  
-  pvs2 <- ggplot(allstats_full52 %>% inner_join(lhs_sets_full52, by = c('version', 'paramset')) %>% filter(product == 'B1', Hill_coefficient_n<5)) + 
-    geom_point(aes(log(mean_product), eval(as.symbol(st)))) +
-    geom_vline(aes(xintercept = log(10)), linetype = 2) +
-    # geom_text(aes(log(mean_product), eval(as.symbol(st)), label = as.character(paramset))) +
-    facet_grid(~mutated_alleles) +
-    theme_classic()  +
-    ggtitle(paste0(st, ' vs mean'))
-  
-  pvs3 <- ggplot(allstats_full52 %>% 
-                   inner_join(lhs_sets_full52, by = c('version', 'paramset')) %>% 
-                   filter(product == 'B1', Hill_coefficient_n<5, mutated_alleles == 1) %>% 
-                   mutate(is10 = mean_product > 10)) + 
-    geom_point(aes(log(mean_product), eval(as.symbol(st)), color = is10), alpha = 0.3, stroke = 0) +
-    geom_vline(aes(xintercept = log(10)), linetype = 2) +
-    scale_color_manual(values = c('grey50', 'black')) +
-    # geom_text(aes(log(mean_product), eval(as.symbol(st)), label = as.character(paramset))) +
-    # facet_grid(~mutated_alleles) +
-    theme_classic()  +
-    theme(legend.position = 'none') +
-    ylab(st) +
-    ggtitle(paste0(st, ' vs mean'))
-  
-  ggsave(pvs1, file = paste0(plotdir52, 'PerGenotype_', st, '_vs_mean.pdf'), width = 16, height = 8) 
-  ggsave(pvs2, file = paste0(plotdir52, 'PerGenotype_', st, '_vs_logmean.pdf'), width = 16, height = 8) 
-  ggsave(pvs3, file = paste0(plotdir52, 'WTMUT_', st, '_vs_logmean.pdf'), width = 4, height = 4) 
-  
-  ggsave(pvs1, file = paste0(plotdir52, 'PerGenotype_', st, '_vs_mean.svg'), width = 16, height = 8) 
-  ggsave(pvs2, file = paste0(plotdir52, 'PerGenotype_', st, '_vs_logmean.svg'), width = 16, height = 8) 
-  ggsave(pvs3, file = paste0(plotdir52, 'WTMUT_', st, '_vs_logmean.svg'), width = 4, height = 4) 
-}
-
+# 
+unistats521<-unique(compared_stats521$stat)
+# 
+# for (st in unistats521) {
+#   
+#   pvs1 <- ggplot(allstats_full52 %>% inner_join(lhs_sets_full52, by = c('version', 'paramset')) %>% filter(product == 'B1', Hill_coefficient_n<5)) + 
+#     geom_point(aes(mean_product, eval(as.symbol(st)))) +
+#     geom_vline(aes(xintercept = 10), linetype = 2) +
+#     # geom_text(aes(mean_product, eval(as.symbol(st)), label = as.character(paramset))) +
+#     facet_grid(~mutated_alleles) +
+#     theme_classic() +
+#     ggtitle(paste0(st, ' vs mean'))
+#   
+#   pvs2 <- ggplot(allstats_full52 %>% inner_join(lhs_sets_full52, by = c('version', 'paramset')) %>% filter(product == 'B1', Hill_coefficient_n<5)) + 
+#     geom_point(aes(log(mean_product), eval(as.symbol(st)))) +
+#     geom_vline(aes(xintercept = log(10)), linetype = 2) +
+#     # geom_text(aes(log(mean_product), eval(as.symbol(st)), label = as.character(paramset))) +
+#     facet_grid(~mutated_alleles) +
+#     theme_classic()  +
+#     ggtitle(paste0(st, ' vs mean'))
+#   
+#   pvs3 <- ggplot(allstats_full52 %>% 
+#                    inner_join(lhs_sets_full52, by = c('version', 'paramset')) %>% 
+#                    filter(product == 'B1', Hill_coefficient_n<5, mutated_alleles == 1) %>% 
+#                    mutate(is10 = mean_product > 10)) + 
+#     geom_point(aes(log(mean_product), eval(as.symbol(st)), color = is10), alpha = 0.3, stroke = 0) +
+#     geom_vline(aes(xintercept = log(10)), linetype = 2) +
+#     scale_color_manual(values = c('grey50', 'black')) +
+#     # geom_text(aes(log(mean_product), eval(as.symbol(st)), label = as.character(paramset))) +
+#     # facet_grid(~mutated_alleles) +
+#     theme_classic()  +
+#     theme(legend.position = 'none') +
+#     ylab(st) +
+#     ggtitle(paste0(st, ' vs mean'))
+#   
+#   ggsave(pvs1, file = paste0(plotdir52, 'PerGenotype_', st, '_vs_mean.pdf'), width = 16, height = 8) 
+#   ggsave(pvs2, file = paste0(plotdir52, 'PerGenotype_', st, '_vs_logmean.pdf'), width = 16, height = 8) 
+#   ggsave(pvs3, file = paste0(plotdir52, 'WTMUT_', st, '_vs_logmean.pdf'), width = 4, height = 4) 
+#   
+#   ggsave(pvs1, file = paste0(plotdir52, 'PerGenotype_', st, '_vs_mean.svg'), width = 16, height = 8) 
+#   ggsave(pvs2, file = paste0(plotdir52, 'PerGenotype_', st, '_vs_logmean.svg'), width = 16, height = 8) 
+#   ggsave(pvs3, file = paste0(plotdir52, 'WTMUT_', st, '_vs_logmean.svg'), width = 4, height = 4) 
+# }
+# 
 
 # LOESS
-loess_fitted_allstats_all52 <- allstats_full52
-for (stat in unistats52[unistats52 != 'mean_product']) {
+loess_fitted_allstats_all521 <- allstats_full521
+for (stat in unistats521[unistats521 != 'mean_product']) {
   
   cat(paste0('working on ', stat, '\n'))
   statdat <- list()
@@ -254,7 +255,7 @@ for (stat in unistats52[unistats52 != 'mean_product']) {
     
     # for (ma in 0:2) {
     
-    tempdat <- allstats_full52 %>% 
+    tempdat <- allstats_full521 %>% 
       filter(#mutated_alleles == ma,
         product == gene) %>%
       dplyr::select(mutated_alleles, product, version, paramset, mean_product, stat)
@@ -314,13 +315,13 @@ for (stat in unistats52[unistats52 != 'mean_product']) {
   # statdat$product <- as.character(statdat$product)
   # statdat$paramset <- as.numeric(statdat$paramset)
   
-  loess_fitted_allstats_all52 %<>% left_join(as_tibble(statdat) %>% dplyr::select(-mean_product), by = c('version', 'paramset', 'mutated_alleles', 'product'))
+  loess_fitted_allstats_all521 %<>% left_join(as_tibble(statdat) %>% dplyr::select(-mean_product), by = c('version', 'paramset', 'mutated_alleles', 'product'))
   # 
   # cat('sliding window normalizing...\n') # do this per-gene over all genotypes, rather than all genes over all genotypes...
   # statdat1 <- sliding_window_normalize(as_tibble(statdat) %>% filter(mean_product>10), 'mean_product', paste0(stat,'_residual'), 50)
   # 
   
-  loess_fitted_allstats_all52 %<>% left_join(statdat1 %>% dplyr::select(-c('mean_product', paste0(stat,'_residual'), paste0(stat,'_fitted'))), by = c('version', 'paramset', 'mutated_alleles', 'product'))
+  loess_fitted_allstats_all521 %<>% left_join(statdat1 %>% dplyr::select(-c('mean_product', paste0(stat,'_residual'), paste0(stat,'_fitted'))), by = c('version', 'paramset', 'mutated_alleles', 'product'))
   # 
   # td1<-allstats_full1 %>% 
   #   dplyr::select(mutated_alleles, product, version, paramset, mean_product, stat)
@@ -376,56 +377,56 @@ for (stat in unistats52[unistats52 != 'mean_product']) {
   
 }
 
-write.csv(loess_fitted_allstats_all52, file = paste0(plotdir52, 'loess_fitted_allstats_all_snwRadius100.csv'), quote = F, row.names = F)
+write.csv(loess_fitted_allstats_all521, file = paste0(plotdir521, 'loess_fitted_allstats_all_snwRadius100.csv'), quote = F, row.names = F)
 
 # load as needed
-# loess_fitted_allstats_all52 <- as_tibble(read.csv(paste0(plotdir52, 'loess_fitted_allstats_all_snwRadius100.csv'), header=T, stringsAsFactors = F))
-
-for (stat in unistats52[unistats52 != 'mean_product']) {
-  
-  cat(paste0('working on ', stat, '\n'))
-  # statdat <- list()
-  
-  for (gene in c('A1', 'Anonsense1', 'Aprime1', 'B1')) {
-    
-    
-    statdatA = loess_fitted_allstats_all52 %>%
-      dplyr::select(mutated_alleles, product, version, paramset, mean_product, stat, as.symbol(paste0(stat, '_residual')), as.symbol(paste0(stat, '_residual_swn'))) %>%
-      filter(product == gene, mean_product>10) 
-    
-    lplot_all_stat_con <- ggplot() +
-      geom_point(data = statdatA, aes(log(mean_product), eval(as.symbol(stat))), stroke=0, alpha = 0.05) +
-      geom_density2d(data = statdatA %>% filter(mutated_alleles == 0, mean_product>10), aes(log(mean_product),eval(as.symbol(stat))), color = 'blue') +
-      geom_density2d(data = statdatA %>% filter(mutated_alleles == 1, mean_product>10), aes(log(mean_product),eval(as.symbol(stat))), color = 'red') +
-      geom_density2d(data = statdatA %>% filter(mutated_alleles == 2, mean_product>10), aes(log(mean_product),eval(as.symbol(stat))), color = 'green') +
-      theme_classic()
-    
-    lplot_all_statLOESS_con <-  ggplot() +
-      geom_point(data = statdatA, aes(log(mean_product), eval(as.symbol(paste0(stat,'_residual')))), stroke=0, alpha = 0.05) +
-      geom_density2d(data = statdatA %>% filter(mutated_alleles == 0,mean_product>10), aes(log(mean_product),eval(as.symbol(paste0(stat,'_residual')))), color = 'blue') +
-      geom_density2d(data = statdatA %>% filter(mutated_alleles == 1,mean_product>10), aes(log(mean_product),eval(as.symbol(paste0(stat,'_residual')))), color = 'red') +
-      geom_density2d(data = statdatA %>% filter(mutated_alleles == 2,mean_product>10), aes(log(mean_product),eval(as.symbol(paste0(stat,'_residual')))), color = 'green') +
-      theme_classic()
-    
-    lplot_all_statLOESSSWN_con <-  ggplot() +
-      geom_point(data = statdatA, aes(log(mean_product), eval(as.symbol(paste0(stat,'_residual_swn')))), stroke=0, alpha = 0.05) +
-      geom_density2d(data = statdatA %>% filter(mutated_alleles == 0,mean_product>10), aes(log(mean_product),eval(as.symbol(paste0(stat,'_residual_swn')))), color = 'blue') +
-      geom_density2d(data = statdatA %>% filter(mutated_alleles == 1,mean_product>10), aes(log(mean_product),eval(as.symbol(paste0(stat,'_residual_swn')))), color = 'red') +
-      geom_density2d(data = statdatA %>% filter(mutated_alleles == 2,mean_product>10), aes(log(mean_product),eval(as.symbol(paste0(stat,'_residual_swn')))), color = 'green') +
-      theme_classic()
-    
-    pdf(paste0(paste0(plotdir52, 'LOESSplots_', stat, 'vsLogMean_', gene,'_v1.6.5.2.pdf')), width = 10, height = 7)
-    grid.arrange(lplot_all_stat_con,lplot_all_statLOESS_con,lplot_all_statLOESSSWN_con, ncol=3,
-                 top = textGrob(paste0(stat, ' vs. log(mean_product), ', gene, '\nStat, LOESS residual, Squeezed LOESS residual (radius=50)'),gp=gpar(fontsize=20,font=3)))
-    dev.off()
-    
-    svglite(paste0(paste0(plotdir52, 'LOESSplots_', stat, 'vsLogMean_', gene,'_v1.6.5.2.svg')), width = 10, height = 7)
-    grid.arrange(lplot_all_stat_con,lplot_all_statLOESS_con,lplot_all_statLOESSSWN_con, ncol=3,
-                 top = textGrob(paste0(stat, ' vs. log(mean_product), ', gene, '\nStat, LOESS residual, Squeezed LOESS residual (radius=50)'),gp=gpar(fontsize=20,font=3)))
-    dev.off()
-    
-  }
-}
+# loess_fitted_allstats_all521 <- as_tibble(read.csv(paste0(plotdir521, 'loess_fitted_allstats_all_snwRadius100.csv'), header=T, stringsAsFactors = F))
+# 
+# for (stat in unistats521[unistats521 != 'mean_product']) {
+#   
+#   cat(paste0('working on ', stat, '\n'))
+#   # statdat <- list()
+#   
+#   for (gene in c('A1', 'Anonsense1', 'Aprime1', 'B1')) {
+#     
+#     
+#     statdatA = loess_fitted_allstats_all52 %>%
+#       dplyr::select(mutated_alleles, product, version, paramset, mean_product, stat, as.symbol(paste0(stat, '_residual')), as.symbol(paste0(stat, '_residual_swn'))) %>%
+#       filter(product == gene, mean_product>10) 
+#     
+#     lplot_all_stat_con <- ggplot() +
+#       geom_point(data = statdatA, aes(log(mean_product), eval(as.symbol(stat))), stroke=0, alpha = 0.05) +
+#       geom_density2d(data = statdatA %>% filter(mutated_alleles == 0, mean_product>10), aes(log(mean_product),eval(as.symbol(stat))), color = 'blue') +
+#       geom_density2d(data = statdatA %>% filter(mutated_alleles == 1, mean_product>10), aes(log(mean_product),eval(as.symbol(stat))), color = 'red') +
+#       geom_density2d(data = statdatA %>% filter(mutated_alleles == 2, mean_product>10), aes(log(mean_product),eval(as.symbol(stat))), color = 'green') +
+#       theme_classic()
+#     
+#     lplot_all_statLOESS_con <-  ggplot() +
+#       geom_point(data = statdatA, aes(log(mean_product), eval(as.symbol(paste0(stat,'_residual')))), stroke=0, alpha = 0.05) +
+#       geom_density2d(data = statdatA %>% filter(mutated_alleles == 0,mean_product>10), aes(log(mean_product),eval(as.symbol(paste0(stat,'_residual')))), color = 'blue') +
+#       geom_density2d(data = statdatA %>% filter(mutated_alleles == 1,mean_product>10), aes(log(mean_product),eval(as.symbol(paste0(stat,'_residual')))), color = 'red') +
+#       geom_density2d(data = statdatA %>% filter(mutated_alleles == 2,mean_product>10), aes(log(mean_product),eval(as.symbol(paste0(stat,'_residual')))), color = 'green') +
+#       theme_classic()
+#     
+#     lplot_all_statLOESSSWN_con <-  ggplot() +
+#       geom_point(data = statdatA, aes(log(mean_product), eval(as.symbol(paste0(stat,'_residual_swn')))), stroke=0, alpha = 0.05) +
+#       geom_density2d(data = statdatA %>% filter(mutated_alleles == 0,mean_product>10), aes(log(mean_product),eval(as.symbol(paste0(stat,'_residual_swn')))), color = 'blue') +
+#       geom_density2d(data = statdatA %>% filter(mutated_alleles == 1,mean_product>10), aes(log(mean_product),eval(as.symbol(paste0(stat,'_residual_swn')))), color = 'red') +
+#       geom_density2d(data = statdatA %>% filter(mutated_alleles == 2,mean_product>10), aes(log(mean_product),eval(as.symbol(paste0(stat,'_residual_swn')))), color = 'green') +
+#       theme_classic()
+#     
+#     pdf(paste0(paste0(plotdir52, 'LOESSplots_', stat, 'vsLogMean_', gene,'_v1.6.5.2.pdf')), width = 10, height = 7)
+#     grid.arrange(lplot_all_stat_con,lplot_all_statLOESS_con,lplot_all_statLOESSSWN_con, ncol=3,
+#                  top = textGrob(paste0(stat, ' vs. log(mean_product), ', gene, '\nStat, LOESS residual, Squeezed LOESS residual (radius=50)'),gp=gpar(fontsize=20,font=3)))
+#     dev.off()
+#     
+#     svglite(paste0(paste0(plotdir52, 'LOESSplots_', stat, 'vsLogMean_', gene,'_v1.6.5.2.svg')), width = 10, height = 7)
+#     grid.arrange(lplot_all_stat_con,lplot_all_statLOESS_con,lplot_all_statLOESSSWN_con, ncol=3,
+#                  top = textGrob(paste0(stat, ' vs. log(mean_product), ', gene, '\nStat, LOESS residual, Squeezed LOESS residual (radius=50)'),gp=gpar(fontsize=20,font=3)))
+#     dev.off()
+#     
+#   }
+# }
 
 # classification
 # focus on LOESS residuals except when specifically indicated (e.g., skewness for exponential dist assignment). sliding window is not normalizing stably enough as intended.
@@ -436,6 +437,73 @@ bimfilt <- 0.1
 
 entfilt <- 0.15
 
+basic_class_assignment_all521 <- loess_fitted_allstats_all521 %>%
+  mutate(class_assignment = case_when(
+    mean_product < 10 ~ 'low-average',
+    bimodality_coef_residual > bimfilt & bimodality_coef > 0.555 ~ 'bimodal',
+    (bimodality_coef_residual <= bimfilt | bimodality_coef <= 0.555) & abs(skewness) < 1 ~ 'unimodal symmetric',
+    (bimodality_coef_residual <= bimfilt | bimodality_coef <= 0.555) & skewness >= 1 ~ 'right-skewed unimodal',
+    (bimodality_coef_residual <= bimfilt | bimodality_coef <= 0.555) & skewness <= -1 ~ 'left-skewed unimodal'
+    
+  )) 
+
+basic_class_assignment_all_forSankey521 <- basic_class_assignment_all521 %>%
+  dplyr::select(version, paramset, product, mutated_alleles, class_assignment) %>%
+  group_by(version, paramset, product) %>%
+  pivot_wider(names_from = mutated_alleles, values_from = class_assignment) %>%
+  group_by(product, `0`, `1`, `2`) %>%
+  summarise(Freq = length(`0`)) %>%
+  ungroup() %>%
+  mutate(alluvID = 1:length(product)) %>%
+  pivot_longer(`0`:`2`, names_to = 'mutated_alleles', values_to = 'class_assignment')
+
+# sample paramsets from the sankey flow to visually inspect accuracy of assignments/changes
+set.seed(73245)
+basic_class_assignment_all_forSankey_forsamples521 <- basic_class_assignment_all521 %>%
+  dplyr::select(version, paramset, product, mutated_alleles, class_assignment)  
+
+classes521 = unique(basic_class_assignment_all521$class_assignment)
+
+if(!dir.exists(paste0(plotdir521, 'stats_class_assignment_check_v', as.character(anver)))) {
+  dir.create(paste0(plotdir521, 'stats_class_assignment_check_v', as.character(anver)))
+}
+
+classes_sankey <- ggplot(basic_class_assignment_all_forSankey521, aes(x = mutated_alleles, y=Freq,
+                                                                   stratum = class_assignment, alluvium = alluvID, fill = class_assignment, label = class_assignment)) +
+  facet_grid(product~.) +
+  geom_flow() +
+  geom_stratum(alpha = 0.5) +
+  geom_text(stat = 'stratum', size = 3) + 
+  scale_fill_brewer(palette = 'Set2') +
+  theme_classic() +
+  theme(legend.position = 'none') +
+  ggtitle('Class assignments before and after mutations\nPositive regulation, log-sampled parameters') +
+  xlab('Mutated alleles') +
+  ylab('Number of parameter sets')
+ggsave(classes_sankey, file = paste0(plotdir521, 'stats_class_assignment_check_v', as.character(anver),'/classes_sankey.pdf'))
+ggsave(classes_sankey, file = paste0(plotdir521, 'stats_class_assignment_check_v', as.character(anver),'/classes_sankey.svg'))
+
+classes_sankey521_B1forfig <- ggplot(basic_class_assignment_all_forSankey521 %>%
+                                      filter(product == 'B1',
+                                             mutated_alleles %in% c(0,1)), aes(x = mutated_alleles, y=Freq,
+                                                                     stratum = class_assignment, alluvium = alluvID, fill = class_assignment, label = class_assignment)) +
+  facet_grid(product~.) +
+  geom_flow() +
+  geom_stratum(alpha = 0.5) +
+  geom_text(stat = 'stratum', size = 3) + 
+  scale_fill_brewer(palette = 'Set2') +
+  theme_classic() +
+  theme(legend.position = 'none') +
+  ggtitle('Class assignments before and after mutation\nGene B1, Positive regulation, log-sampled parameters') +
+  xlab('Mutated alleles') +
+  ylab('Number of parameter sets')
+ggsave(classes_sankey521_B1forfig, file = paste0(plotdir521, 'stats_class_assignment_check_v', as.character(anver),'/classes_sankey_B1formainfig.pdf'))
+ggsave(classes_sankey521_B1forfig, file = paste0(plotdir521, 'stats_class_assignment_check_v', as.character(anver),'/classes_sankey_B1formainfig.svg'))
+
+
+## load 1.6.5.2 here, classify, and compare fractions of unisymm in B1 het
+
+loess_fitted_allstats_all52 <- as_tibble(read.csv(paste0(plotdir52, 'loess_fitted_allstats_all_snwRadius100.csv'), header=T, stringsAsFactors = F))
 basic_class_assignment_all52 <- loess_fitted_allstats_all52 %>%
   mutate(class_assignment = case_when(
     mean_product < 10 ~ 'low-average',
@@ -461,43 +529,20 @@ set.seed(73245)
 basic_class_assignment_all_forSankey_forsamples52 <- basic_class_assignment_all52 %>%
   dplyr::select(version, paramset, product, mutated_alleles, class_assignment)  
 
-classes52 = unique(basic_class_assignment_all52$class_assignment)
+b1_isUS <- bind_rows(basic_class_assignment_all_forSankey_forsamples521, basic_class_assignment_all_forSankey_forsamples52) %>%
+  filter(product == 'B1', mutated_alleles == 1) %>%
+  mutate(isUS = class_assignment == 'unimodal symmetric') %>%
+  group_by(version, isUS) %>%
+  summarise(n_sets = length(isUS)) %>%
+  mutate(nSets = ifelse(version == '1.6.5.2.1', 100, 10000),
+        frac_sets = n_sets/nSets) 
 
-if(!dir.exists(paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver)))) {
-  dir.create(paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver)))
-}
-
-classes_sankey <- ggplot(basic_class_assignment_all_forSankey52, aes(x = mutated_alleles, y=Freq,
-                                                                   stratum = class_assignment, alluvium = alluvID, fill = class_assignment, label = class_assignment)) +
-  facet_grid(product~.) +
-  geom_flow() +
-  geom_stratum(alpha = 0.5) +
-  geom_text(stat = 'stratum', size = 3) + 
-  scale_fill_brewer(palette = 'Set2') +
+b1_isUS_bars <- ggplot(b1_isUS, aes(version, frac_sets, fill = isUS)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c('TRUE' = 'darkblue', 'FALSE' = 'grey50')) +
   theme_classic() +
-  theme(legend.position = 'none') +
-  ggtitle('Class assignments before and after mutations\nPositive regulation, log-sampled parameters') +
-  xlab('Mutated alleles') +
-  ylab('Number of parameter sets')
-ggsave(classes_sankey, file = paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/classes_sankey.pdf'))
-ggsave(classes_sankey, file = paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/classes_sankey.svg'))
-
-classes_sankey52_B1forfig <- ggplot(basic_class_assignment_all_forSankey52 %>%
-                                      filter(product == 'B1',
-                                             mutated_alleles %in% c(0,1)), aes(x = mutated_alleles, y=Freq,
-                                                                     stratum = class_assignment, alluvium = alluvID, fill = class_assignment, label = class_assignment)) +
-  facet_grid(product~.) +
-  geom_flow() +
-  geom_stratum(alpha = 0.5) +
-  geom_text(stat = 'stratum', size = 3) + 
-  scale_fill_brewer(palette = 'Set2') +
-  theme_classic() +
-  theme(legend.position = 'none') +
-  ggtitle('Class assignments before and after mutation\nGene B1, Positive regulation, log-sampled parameters') +
-  xlab('Mutated alleles') +
-  ylab('Number of parameter sets')
-ggsave(classes_sankey52_B1forfig, file = paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/classes_sankey_B1formainfig.pdf'))
-ggsave(classes_sankey52_B1forfig, file = paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/classes_sankey_B1formainfig.svg'))
+  ylab('Fraction of sets unimodal symmetric')
+ggsave(b1_isUS_bars, file = paste0(plotdir521, 'stats_class_assignment_check_v', as.character(anver),'/b1_isUS_bars.svg'))
 
 
 basic_class_assignment_all_forpie52 <- basic_class_assignment_all52 %>%
@@ -730,223 +775,6 @@ islowaverage_het_log_paramranges <- parse_partykit(temp.tree, paramspace_log)
 write.csv(islowaverage_het_log_paramranges, 
           file = paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/islowaverage_het_log_paramranges.csv'), 
           quote = F, row.names = F)
-
-# decision tree for 5-way classifier of B1 in het
-
-temp_class_for_tree52_log <- classes_for_trees52_log %>%
-  dplyr::select(colnames(lhs_sets52), `1_B1`) %>% ungroup() %>%
-  dplyr::select(-paramset) %>%
-  dplyr::rename(classShape = `1_B1`)
-
-temp_class_for_tree52_log$classShape <- as.factor(temp_class_for_tree52_log$classShape)
-
-temp.tree <- ctree(classShape ~ basal_nitc_on_ratio + onbasalA1_off_ratio + A1_Aprime1_addon_ratio + 
-                     A1_Aprime_prodon_ratio + r_prod_on + r_addon_byA1_B1 + r_onbasal_A1 + Hill_coefficient_n, 
-                   data = temp_class_for_tree52_log,
-                   control = ctree_control(alpha = 0.01,
-                                           minbucket = 100,
-                                           maxdepth = 3))
-
-pdf(paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/FiveWay_tree_depth3_log.pdf'), width = 20, height = 6)
-plot(temp.tree, margins = c(5, 0, 0, 0),
-     tp_args = list(rot = 45, just = c("right", "top")))
-dev.off()
-
-svglite(paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/FiveWay_tree_depth3_log.svg'), width = 20, height = 6)
-plot(temp.tree, margins = c(5, 0, 0, 0),
-     tp_args = list(rot = 45, just = c("right", "top")))
-dev.off()
-
-temp.tree <- ctree(classShape ~ basal_nitc_on_ratio + onbasalA1_off_ratio + A1_Aprime1_addon_ratio + 
-                     A1_Aprime_prodon_ratio + r_prod_on + r_addon_byA1_B1 + r_onbasal_A1 + Hill_coefficient_n, 
-                   data = temp_class_for_tree52_log,
-                   control = ctree_control(alpha = 0.01,
-                                           minbucket = 100,
-                                           maxdepth = 4))
-
-pdf(paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/FiveWay_tree_depth4_log.pdf'), width = 25, height = 6)
-plot(temp.tree, margins = c(5, 0, 0, 0),
-     tp_args = list(rot = 45, just = c("right", "top")))
-dev.off()
-
-svglite(paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/FiveWay_tree_depth4_log.svg'), width = 25, height = 10)
-plot(temp.tree, margins = c(5, 0, 0, 0),
-     tp_args = list(rot = 45, just = c("right", "top")))
-dev.off()
-
-#scatters/contours colored by class
-nitc_addon_contour <- ggplot(temp_class_for_tree52_log, aes(basal_nitc_on_ratio, A1_Aprime1_addon_ratio, color = classShape)) +
-  geom_density_2d() +
-  theme_classic() +
-  xlab('NITC ratio') +
-  ylab('Activation ratio')
-prodon_addon_contour <- ggplot(temp_class_for_tree52_log, aes(A1_Aprime_prodon_ratio, A1_Aprime1_addon_ratio, color = classShape)) +
-  geom_density_2d() +
-  theme_classic() +
-  xlab('Production ratio') +
-  ylab('Activation ratio')
-prodon_nitc_contour <- ggplot(temp_class_for_tree52_log, aes(A1_Aprime_prodon_ratio, basal_nitc_on_ratio, color = classShape)) +
-  geom_density_2d() +
-  theme_classic() +
-  xlab('Production ratio') +
-  ylab('NITC ratio')
-ggsave(nitc_addon_contour, 
-       file = paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/contour_nitc_addon.pdf'), width = 6, height = 4)
-ggsave(nitc_addon_contour, 
-       file = paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/contour_nitc_addon.svg'), width = 6, height = 4)
-ggsave(prodon_addon_contour, 
-       file = paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/contour_prodon_addon.pdf'), width = 6, height = 4)
-ggsave(prodon_addon_contour, 
-       file = paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/contour_prodon_addon.svg'), width = 6, height = 4)
-ggsave(prodon_nitc_contour, 
-       file = paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/contour_prodon_nitc.pdf'), width = 6, height = 4)
-ggsave(prodon_nitc_contour, 
-       file = paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/contour_prodon_nitc.svg'), width = 6, height = 4)
-
-
-# shorter single-shape trees
-
-temp_class_for_tree52_log <- classes_for_trees52_log %>%
-  dplyr::select(colnames(lhs_sets52), `1_B1`) %>% ungroup() %>%
-  dplyr::select(-paramset) %>%
-  mutate(is_bimodal = ifelse(`1_B1` == 'bimodal', T, F)) %>%
-  dplyr::select(-`1_B1`)
-
-temp_class_for_tree52_log$is_bimodal <- as.factor(temp_class_for_tree52_log$is_bimodal)
-
-temp.tree <- ctree(is_bimodal ~ basal_nitc_on_ratio + onbasalA1_off_ratio + A1_Aprime1_addon_ratio + 
-                     A1_Aprime_prodon_ratio + r_prod_on + r_addon_byA1_B1 + r_onbasal_A1 + Hill_coefficient_n, 
-                   data = temp_class_for_tree52_log,
-                   control = ctree_control(alpha = 0.01,
-                                           minbucket = 100,
-                                           maxdepth = 3))
-
-pdf(paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/isBimodalHet_tree_depth3_log.pdf'), width = 20, height = 10)
-plot(temp.tree)
-dev.off()
-
-svglite(paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/isBimodalHet_tree_depth3_log.svg'), width = 20, height = 10)
-plot(temp.tree)
-dev.off()
-
-
-temp_class_for_tree52_log <- classes_for_trees52_log %>%
-  dplyr::select(colnames(lhs_sets52), `1_B1`) %>% ungroup() %>%
-  dplyr::select(-paramset) %>%
-  mutate(is_unimodal = ifelse(`1_B1` == 'unimodal symmetric', T, F)) %>%
-  dplyr::select(-`1_B1`)
-
-temp_class_for_tree52_log$is_unimodal <- as.factor(temp_class_for_tree52_log$is_unimodal)
-
-temp.tree <- ctree(is_unimodal ~ basal_nitc_on_ratio + onbasalA1_off_ratio + A1_Aprime1_addon_ratio + 
-                     A1_Aprime_prodon_ratio + r_prod_on + r_addon_byA1_B1 + r_onbasal_A1 + Hill_coefficient_n, 
-                   data = temp_class_for_tree52_log,
-                   control = ctree_control(alpha = 0.01,
-                                           minbucket = 100,
-                                           maxdepth = 3))
-
-pdf(paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/isUnimodalSymmetricHet_tree_depth3_log.pdf'), width = 20, height = 10)
-plot(temp.tree)
-dev.off()
-
-svglite(paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/isUnimodalSymmetricHet_tree_depth3_log.svg'), width = 20, height = 10)
-plot(temp.tree)
-dev.off()
-# 
-# isunimodalsymmetric_het_log_paramranges <- parse_partykit(temp.tree, paramspace_log)
-# write.csv(isunimodalsymmetric_het_log_paramranges, 
-#           file = paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/isunimodalsymmetric_het_log_paramranges.csv'), 
-#           quote = F, row.names = F)
-
-
-# decision tree for B1 left-skewed in het
-
-temp_class_for_tree52_log <- classes_for_trees52_log %>%
-  dplyr::select(colnames(lhs_sets52), `1_B1`) %>% ungroup() %>%
-  dplyr::select(-paramset) %>%
-  mutate(is_left = ifelse(`1_B1` == 'left-skewed unimodal', T, F)) %>%
-  dplyr::select(-`1_B1`)
-
-temp_class_for_tree52_log$is_left <- as.factor(temp_class_for_tree52_log$is_left)
-
-temp.tree <- ctree(is_left ~ basal_nitc_on_ratio + onbasalA1_off_ratio + A1_Aprime1_addon_ratio + 
-                     A1_Aprime_prodon_ratio + r_prod_on + r_addon_byA1_B1 + r_onbasal_A1 + Hill_coefficient_n, 
-                   data = temp_class_for_tree52_log,
-                   control = ctree_control(alpha = 0.01,
-                                           minbucket = 100,
-                                           maxdepth = 3))
-
-pdf(paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/isLeftSkewedHet_tree_depth3_log.pdf'), width = 10, height = 10)
-plot(temp.tree)
-dev.off()
-
-svglite(paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/isLeftSkewedHet_tree_depth3_log.svg'), width = 10, height = 10)
-plot(temp.tree)
-dev.off()
-
-# isleftskewed_het_log_paramranges <- parse_partykit(temp.tree, paramspace_log)
-# write.csv(isleftskewed_het_log_paramranges, 
-#           file = paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/isleftskewed_het_log_paramranges.csv'), 
-#           quote = F, row.names = F)
-# decision tree for B1 right-skewed in het
-
-temp_class_for_tree52_log <- classes_for_trees52_log %>%
-  dplyr::select(colnames(lhs_sets52), `1_B1`) %>% ungroup() %>%
-  dplyr::select(-paramset) %>%
-  mutate(is_right = ifelse(`1_B1` == 'right-skewed unimodal', T, F)) %>%
-  dplyr::select(-`1_B1`)
-
-temp_class_for_tree52_log$is_right <- as.factor(temp_class_for_tree52_log$is_right)
-
-temp.tree <- ctree(is_right ~ basal_nitc_on_ratio + onbasalA1_off_ratio + A1_Aprime1_addon_ratio + 
-                     A1_Aprime_prodon_ratio + r_prod_on + r_addon_byA1_B1 + r_onbasal_A1 + Hill_coefficient_n, 
-                   data = temp_class_for_tree52_log,
-                   control = ctree_control(alpha = 0.01,
-                                           minbucket = 100,
-                                           maxdepth = 3))
-
-pdf(paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/isRightSkewedHet_tree_depth3_log.pdf'), width = 20, height = 10)
-plot(temp.tree)
-dev.off()
-
-svglite(paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/isRightSkewedHet_tree_depth3_log.svg'), width = 20, height = 10)
-plot(temp.tree)
-dev.off()
-
-# isrightskewed_het_log_paramranges <- parse_partykit(temp.tree, paramspace_log)
-# write.csv(isrightskewed_het_log_paramranges, 
-#           file = paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/isrightskewed_het_log_paramranges.csv'), 
-#           quote = F, row.names = F)
-# decision tree for B1 low-expression in het
-
-temp_class_for_tree52_log <- classes_for_trees52_log %>%
-  dplyr::select(colnames(lhs_sets52), `1_B1`) %>% ungroup() %>%
-  dplyr::select(-paramset) %>%
-  mutate(is_low = ifelse(`1_B1` == 'low-average', T, F)) %>%
-  dplyr::select(-`1_B1`)
-
-temp_class_for_tree52_log$is_low <- as.factor(temp_class_for_tree52_log$is_low)
-
-temp.tree <- ctree(is_low ~ basal_nitc_on_ratio + onbasalA1_off_ratio + A1_Aprime1_addon_ratio + 
-                     A1_Aprime_prodon_ratio + r_prod_on + r_addon_byA1_B1 + r_onbasal_A1 + Hill_coefficient_n, 
-                   data = temp_class_for_tree52_log,
-                   control = ctree_control(alpha = 0.01,
-                                           minbucket = 100,
-                                           maxdepth = 3))
-
-pdf(paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/isLowAvgHet_tree_depth3_log.pdf'), width = 20, height = 10)
-plot(temp.tree)
-dev.off()
-
-svglite(paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/isLowAvgHet_tree_depth3_log.svg'), width = 20, height = 10)
-plot(temp.tree)
-dev.off()
-
-# islowaverage_het_log_paramranges <- parse_partykit(temp.tree, paramspace_log)
-# 
-# write.csv(islowaverage_het_log_paramranges, 
-#           file = paste0(plotdir52, 'stats_class_assignment_check_v', as.character(anver),'/islowaverage_het_log_paramranges.csv'), 
-#           quote = F, row.names = F)
 
 # decision tree for B1 unimodal symm to unimodal symm vs unimodal symm to other
 

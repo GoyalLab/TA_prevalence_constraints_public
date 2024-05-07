@@ -1,13 +1,12 @@
 ### Summary plots for length and condition analyses for Mellis et al., 2023
 ### Created by Madeline E Melzer on 20231120
-### Last edit by Madeline E Melzer on 20231128
-
+### Last edit by Madeline E Melzer on 20240503
 
 library(tidyverse)
 library(svglite)
 library(ggrepel)
 library(scales)
-#library(ggplot2)
+library(ggplot2)
 #library(ggbreak)
 library(ggbeeswarm)
 library(patchwork)
@@ -15,19 +14,15 @@ library(tools)
 
 set.seed(23)
 
-plotDirectory = "/Users/mem3579/Library/CloudStorage/OneDrive-NorthwesternUniversity/Arispe and Goyal Labs/transcriptionalCompensation/transcriptionalcompensation_20231117/plots/"
-grn_nitc_path = "/Users/mem3579/Library/CloudStorage/OneDrive-NorthwesternUniversity/Arispe and Goyal Labs/transcriptionalCompensation/grn_nitc/"
-
-#PC (for Madeline's laptop)
-plotDirectory = "C:\\Users\\madel\\OneDrive - Northwestern University\\Arispe and Goyal Labs\\transcriptionalCompensation\\transcriptionalcompensation_20231117\\plots\\"
-grn_nitc_path = "C:\\Users\\madel\\OneDrive\\Documents\\GitHub\\grn_nitc\\"
-
+plotDirectory = "/Volumes/fsmresfiles/Basic_Sciences/CDB/GoyalLab/People/MadelineMelzer/MellisEtAl2023/plots/"
+grn_nitc_path = "/Volumes/fsmresfiles/Basic_Sciences/CDB/GoyalLab/People/MadelineMelzer/MellisEtAl2023/scripts/grn_nitc/"
 
 allData <- as_tibble(read.csv(paste0(file.path(grn_nitc_path, 'rnaseq/supp_analyses/length/data/allData.csv')), stringsAsFactors = F, header = T))
 filteredData <- as_tibble(read.csv(paste0(file.path(grn_nitc_path,'rnaseq/supp_analyses/length/data/filteredData.csv')), stringsAsFactors = F, header = T))
 mainData <- as_tibble(read.csv(paste0(file.path(grn_nitc_path,'rnaseq/supp_analyses/length/data/mainData.csv')), stringsAsFactors = F, header = T))
 
 mechanismComponents <- as_tibble(read.csv(paste0(file.path(grn_nitc_path,'rnaseq/supp_analyses/nitc_components/data/mechanismComponents_baseMeans.csv')), stringsAsFactors = F, header = T))
+GTExPairwiseCor <- as_tibble(read.csv(paste0(file.path(grn_nitc_path, 'resub1/Analysis/public_rna-seq_reanalysis/supplemental/GTEx_pariwisecor_FC2.csv')), stringsAsFactors = F, header = T))
 
 ############### Condition comparison within one dataset, GSE145653 (-1 and -2) ##############################################################
 
@@ -53,6 +48,104 @@ condition_scatter <- ggplot(reshaped_data, aes(x = `GSE145653-1`, y = `GSE145653
 print(condition_scatter)
 #ggsave(condition_scatter, filename = "/Users/mem3579/Library/CloudStorage/OneDrive-NorthwesternUniversity/Arispe and Goyal Labs/transcriptionalCompensation/transcriptionalcompensation_20231117/plots/condition_scatter.svg", width = 6, height = 4.5)
 #ggsave(condition_scatter, filename = "/Users/mem3579/Library/CloudStorage/OneDrive-NorthwesternUniversity/Arispe and Goyal Labs/transcriptionalCompensation/transcriptionalcompensation_20231117/plots/condition_scatter.png", width = 6, height = 4.5)
+
+
+
+### from IAM: count numbers of paralogs per knockout target:
+reshaped_data_nPara <- allData %>% 
+  dplyr::select(Gene, dataset, Percent.Upregulated) %>%
+  filter(dataset %in% c('GSE145653-1', 'GSE145653-2')) %>%
+  group_by(Gene, dataset)  %>% 
+  mutate(nPara = length(Gene)) %>%
+  unique() %>% arrange(Gene) %>%
+  pivot_wider(names_from = dataset, values_from = Percent.Upregulated) %>%
+  filter(!is.na(`GSE145653-1`),
+         !is.na(`GSE145653-2`))
+
+# new version (20240423) of figure 1F that includes number of paralogs per target
+condition_scatter_nPara <- ggplot(reshaped_data_nPara, aes(x = `GSE145653-1`, y = `GSE145653-2`)) +
+  #geom_point(data = reshaped_data_nPara, aes(x = `GSE145653-1`, y = `GSE145653-2`, size = nPara)) +
+  geom_point(aes(color = nPara), size = 2) +  # Use color for nPara
+  geom_text_repel(aes(label = Gene), max.overlaps = Inf) +
+  geom_abline(slope = 1, intercept = 0, linetype = 2) +
+  scale_color_gradient(low = "#ffe4f8", high = "#74003e", name = "Number of Paralogs") +  # Define color gradient
+  xlab('GSE145653-1 fraction upregulated') +
+  ylab('GSE145653-2 fraction upregulated') +
+  guides(color = "none") +
+  theme_classic()
+print(condition_scatter_nPara)
+ggsave(condition_scatter_nPara, filename = paste0(file.path(plotDirectory, 'condition_scatter_nPara.svg')), width = 6, height = 4.5) #20240503MEM
+ggsave(condition_scatter_nPara, filename = paste0(file.path(plotDirectory, 'condition_scatter_nPara.png')), width = 6, height = 4.5) #20240503MEM
+
+
+#### plotting FC2 for each paralog in in condition -1 against condition -2
+reshaped_data_conditions <- allData %>% 
+  filter(dataset %in% c('GSE145653-1', 'GSE145653-2')) %>%
+  select(Gene, Paralog, FC2, dataset) %>%
+  group_by(Gene, Paralog) %>%
+  pivot_wider(names_from = dataset, values_from = FC2) %>%
+  ungroup() %>%
+  filter(!is.na(`GSE145653-1`) & !is.na(`GSE145653-2`)) 
+
+pvals <- allData %>%
+  filter(dataset == 'GSE145653-1') %>%
+  select(Gene, Paralog, padj) %>%
+  mutate(padj_transform = -log10(padj))
+
+reshaped_data_conditions <- left_join(reshaped_data_conditions, pvals, by = c("Gene", "Paralog"))
+
+max_padj_transform <- max(reshaped_data_conditions$padj_transform, na.rm = TRUE)
+
+reshaped_data_conditions_noNA = reshaped_data_conditions %>% filter(is.na(padj) == FALSE)
+
+condition_scatter_FC2 <- ggplot(reshaped_data_conditions_noNA, aes(x = `GSE145653-1`, y = `GSE145653-2`, color = padj_transform)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, linetype = 2) +
+  scale_color_gradientn(
+    colors = c("#e3cfff", "#0000ff", "#0b003f", "#0b003f"),  # Ensuring dark color for high values
+    values = rescale(c(0, 14.99, 15, max_padj_transform)),  # Ensuring transition ends at 15
+    name = "-log10(padj)",
+    limits = c(0, max_padj_transform),  # Using full range of data for plotting
+    breaks = c(0, 5, 10, 15),  # Define breaks to show in the legend
+    labels = c("0", "5", "10", "15+"),  # Define labels corresponding to breaks
+    guide = guide_colorbar(title = "-log10(padj)", barwidth = 2, barheight = 6, ticks = TRUE)  # Color bar settings
+  ) +
+  xlab('GSE145653-1 FC2') +
+  ylab('GSE145653-2 FC2') +
+  theme_classic()
+print(condition_scatter_FC2)
+#ggsave(condition_scatter_FC2, filename = paste0(file.path(plotDirectory, 'condition_scatter_FC2.svg')), width = 6, height = 4.5) #20240502MEM
+#ggsave(condition_scatter_FC2, filename = paste0(file.path(plotDirectory, 'condition_scatter_FC2.png')), width = 6, height = 4.5) #20240502MEM
+
+
+# one plot per gene
+
+reshaped_data_conditions_hits = reshaped_data_conditions_noNA %>% filter(Gene %in% c("Lmna", "Macf1", "Myc", "Nes", "Nsd1", "Trim71", "Zfp281"))
+
+condition_scatter_FC2 <- ggplot(reshaped_data_conditions_noNA, aes(x = `GSE145653-1`, y = `GSE145653-2`, color = padj_transform)) +
+  geom_point() +
+  #geom_text_repel(aes(label = Paralog), max.overlaps = Inf) +
+  geom_abline(slope = 1, intercept = 0, linetype = 2) +
+  facet_wrap(~ Gene, scales = "free") +  # Create a separate plot for each gene
+  scale_color_gradientn(
+    colors = c("#e3cfff", "#0000ff", "#0b003f", "#0b003f"),  # Ensuring dark color for high values
+    values = rescale(c(0, 14.99, 15, max_padj_transform)),  # Ensuring transition ends at 15
+    name = "-log10(padj)",
+    limits = c(0, max_padj_transform),  # Using full range of data for plotting
+    breaks = c(0, 5, 10, 15),  # Define breaks to show in the legend
+    labels = c("0", "5", "10", "15+"),  # Define labels corresponding to breaks
+    guide = FALSE
+  ) +
+  xlab('GSE145653-1 FC2') +
+  ylab('GSE145653-2 FC2') +
+  theme_classic()
+print(condition_scatter_FC2)
+#ggsave(condition_scatter_FC2, filename = paste0(file.path(plotDirectory, 'condition_scatter_FC2_all.svg')), width = 7.5, height = 8) #20240502MEM, saved for hits (6 x 4.5) and all individuals
+#ggsave(condition_scatter_FC2, filename = paste0(file.path(plotDirectory, 'condition_scatter_FC2_all.png')), width = 7.5, height = 8) #20240502MEM, saved for hits (6 x 4.5) and all individuals
+
+
+##stats, 20240502
+cor(reshaped_data_conditions_noNA$"GSE145653-1", reshaped_data_conditions_noNA$"GSE145653-2", method = "spearman") # 0.6772401, 20240502
 
 
 ############### gene length analysis #########################################################################################################
@@ -192,13 +285,54 @@ print(unique_genes_non_NITC)
 
 
 
+############### whether coexpression is predictive of paralog log2foldchange after target knockout #########################################################################################################
+# from IAM analysis, 20240501
+
+GTExPairwiseCor = GTExPairwiseCor %>%
+  mutate(padj_transform = -log10(padj))
+
+max_padj_transform <- max(GTExPairwiseCor$padj_transform, na.rm = TRUE)
+
+GTExPairwiseCor_noNA = GTExPairwiseCor %>% filter(is.na(padj) == FALSE)
+
+GTExPairwiseCor_plot <- ggplot(GTExPairwiseCor_noNA, aes(x = cor_spearman, y = FC2, color = padj_transform)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, linetype = 2) +
+  scale_color_gradientn(
+    colors = c("#e3cfff", "#0000ff", "#0b003f", "#0b003f"),  # Ensuring dark color for high values
+    values = rescale(c(0, 9.99, 10, max_padj_transform)),  # Ensuring transition ends at 15
+    name = "-log10(padj)",
+    limits = c(0, max_padj_transform),  # Using full range of data for plotting
+    breaks = c(0, 5, 10),  # Define breaks to show in the legend
+    labels = c("0", "5", "10+"),  # Define labels corresponding to breaks
+    #guide = FALSE
+    guide = guide_colorbar(title = "-log10(padj)", barwidth = 2, barheight = 6, ticks = TRUE)  # Color bar settings
+  ) +
+  xlab("Spearman's correlation") +
+  ylab("FC2") +
+  theme_classic()
+print(GTExPairwiseCor_plot)
+ggsave(GTExPairwiseCor_plot, filename = paste0(file.path(plotDirectory, 'GTExPairwiseCor.svg')), width = 6, height = 4.5) #20240502MEM
+ggsave(GTExPairwiseCor_plot, filename = paste0(file.path(plotDirectory, 'GTExPairwiseCor.png')), width = 6, height = 4.5) #20240502MEM
 
 
-
-
-
-
-
-
+# for scalebar ONLY
+GTExPairwiseCor_plot <- ggplot(GTExPairwiseCor_noNA, aes(x = cor_spearman, y = FC2, color = padj_transform)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, linetype = 2) +
+  scale_color_gradientn(
+    colors = c("#e3cfff", "#0000ff"),  # Ensuring dark color for high values
+    values = rescale(c(0, 10)),  # Ensuring transition ends at 15
+    name = "-log10(padj)",
+    limits = c(0, 10),  # Using full range of data for plotting
+    breaks = c(0, 5, 10),  # Define breaks to show in the legend
+    labels = c("0", "5", "10+"),  # Define labels corresponding to breaks
+    guide = guide_colorbar(title = "-log10(padj)", barwidth = 2, barheight = 6, ticks = TRUE)  # Color bar settings
+  ) +
+  xlab("Spearman's correlation") +
+  ylab("FC2") +
+  theme_classic()
+print(GTExPairwiseCor_plot)
+#ggsave(GTExPairwiseCor_plot, filename = paste0(file.path(plotDirectory, 'GTExPairwiseCor_scalebar.svg')), width = 6, height = 4.5) #20240502MEM
 
 

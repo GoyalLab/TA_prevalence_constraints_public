@@ -152,6 +152,19 @@ ggsave(perup_sum_scatter_p, filename = 'de_analysis/summary_plots_drafts/perup_s
 ggsave(perup_sum_scatter_p_fc, filename = 'de_analysis/summary_plots_drafts/perup_sum_scatter_p_fc.svg', width = 6, height = 4.5)
 ggsave(perup_sum_scatter_p_fc_b, filename = 'de_analysis/summary_plots_drafts/perup_sum_scatter_p_fc_b.svg', width = 6, height = 4.5)
 
+perup_sum_volcano_p_fc <- ggplot() + 
+  geom_point(data = perup_summary_p_fc, aes(Percent.Upregulated_Paralogs, -log10(`p_value_Bootstrapped Genes`))) + 
+  geom_text_repel(data = perup_summary_p_fc %>% filter(`p_value_Bootstrapped Genes` < 0.1), 
+                  aes(Percent.Upregulated_Paralogs, -log10(`p_value_Bootstrapped Genes`), label = KO_Gene), seed = 8934) +
+  geom_hline(yintercept = 1, linetype = 2) + 
+  xlim(c(0,1)) + 
+  xlab('Observed fraction upregulated') +
+  ylab('-log10(Bootrstrap p-value)') +
+  theme_classic() +
+  ggtitle('DESeq2 filters: p.adj < 0.05, LFC > 0.5\nLabeled points bootstrap p.val < 0.1')
+ggsave(perup_sum_volcano_p_fc, filename = 'de_analysis/summary_plots_drafts/perup_sum_volcano_p_fc.svg', width = 6, height = 4.5)
+
+
 qq_perup_p_fc <- ggplot() +
   geom_point(data = perup_summary_p_fc %>% mutate(exp_p = rank(`p_value_Bootstrapped Genes`)/74),
              aes(-log10(exp_p), -log10(`p_value_Bootstrapped Genes`), color = `p_value_Bootstrapped Genes`)) +

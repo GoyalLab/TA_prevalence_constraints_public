@@ -933,7 +933,7 @@ multi_nParas_top50_percpos %>% inner_join(celldat)
 ## single-cell dists for regulons
 
 # load Nico's table
-regulons <- as_tibble(read.csv('~/code/grn_nitc/rnaseq/single-cell/topTFs_manycells_forNB_regulons.csv', stringsAsFactors = F))
+regulons <- as_tibble(read.csv('~/code/grn_nitc/rnaseq/supp_analyses/shared_regulons/single-cell/topTFs_manycells_forNB_regulons.csv', stringsAsFactors = F))
 
 NTCdat_sc <- as_tibble(data.table::fread(paste0(datadir, 'RNA_expression.csv.gz'),
                                          header = T, 
@@ -1104,6 +1104,69 @@ ggsave(pa_hists, file = paste0(datadir, 'Frangieh2021/stat_graphs/regulon_graphs
 ggsave(dn1_hists, file = paste0(datadir, 'Frangieh2021/stat_graphs/regulon_graphs/SMADs_dn1_hists.svg'), width = 6, height = 4)
 ggsave(dn2_hists, file = paste0(datadir, 'Frangieh2021/stat_graphs/regulon_graphs/SMADs_dn2_hists.svg'), width = 6, height = 4)
 ggsave(dn3_hists, file = paste0(datadir, 'Frangieh2021/stat_graphs/regulon_graphs/SMADs_dn3_hists.svg'), width = 6, height = 4)
+
+# calculate summary stats (mean and bimodality coefficient) for the total and only-positive populations
+
+tempstats_all <- bind_rows(temp_targ_vals, temp_NTC_vals) %>% 
+  mutate(CRISPR_target_GS = tf) %>%
+  group_by(CRISPR_target_GS, GENE, cellType) %>%
+  summarise(mean_product = mean(abundance),
+            median_product = median(abundance),
+            perc_pos = sum(abundance > 0),
+            sd_product = sd(abundance),
+            cv_product = sd_product/(mean_product + 0.01),
+            bimodality_coef = calculate_bimodality(abundance))
+
+tempstats_ponly <- bind_rows(temp_targ_vals, temp_NTC_vals) %>% 
+  mutate(CRISPR_target_GS = tf) %>%
+  filter(abundance > 0) %>%
+  group_by(CRISPR_target_GS, GENE, cellType) %>%
+  summarise(mean_product = mean(abundance),
+            median_product = median(abundance),
+            perc_pos = sum(abundance > 0),
+            sd_product = sd(abundance),
+            cv_product = sd_product/(mean_product + 0.01),
+            bimodality_coef = calculate_bimodality(abundance))
+
+write.csv(tempstats_all, file = paste0(datadir, 'Frangieh2021/stat_graphs/regulon_graphs/SMADs_tempstats_all.csv'), row.names = F, quote = F)
+write.csv(tempstats_ponly, file = paste0(datadir, 'Frangieh2021/stat_graphs/regulon_graphs/SMADs_tempstats_ponly.csv'), row.names = F, quote = F)
+
+# Fisher's exact tests for fraction positive differences
+# need contingency tables: rows - positive or 0, columns - control or KO
+fet_dat <- bind_rows(temp_targ_vals, temp_NTC_vals) %>% 
+  mutate(CRISPR_target_GS = tf) %>%
+  group_by(CRISPR_target_GS, GENE, cellType) %>%
+  summarise(n_positive = sum(abundance > 0),
+            n_zero = sum(abundance == 0))
+
+smadfettbl <- list()
+for (gene in unique(fet_dat$GENE)){
+  
+  tmp_fet <- fet_dat %>%
+    filter(GENE == gene) %>%
+    pivot_longer(cols = n_positive:n_zero, names_to = 'abundance_type', values_to = 'count') %>%
+    pivot_wider(names_from = cellType, values_from = count)
+  
+  tmp_fet_mat <- as.matrix(as.data.frame(tmp_fet[,c('controls', 'targeted')]))
+  
+  tmp_fet_res <- fisher.test(tmp_fet_mat)
+  
+  if(is.null(dim(smadfettbl))) {
+    smadfettbl <- tibble(
+      GENE = gene,
+      FET_pval = tmp_fet_res$p.value)
+    } else {
+      smadfettbl %<>% bind_rows(tibble(
+        GENE = gene,
+        FET_pval = tmp_fet_res$p.value))
+    }
+  
+  
+}
+
+write.csv(smadfettbl, file = paste0(datadir, 'Frangieh2021/stat_graphs/regulon_graphs/SMADs_fracpos_FET.csv'), row.names = F, quote = F)
+write.csv(smadfettbl, file = paste0(datadir, 'Frangieh2021/stat_graphs/regulon_graphs/SMADs_FET_pvals.csv'), row.names = F, quote = F)
+
 
 ggplot(bind_rows(temp_targ_vals, temp_NTC_vals),
        aes(Aprime_Paralog_SMAD1, B_Downstream_TNFRSF11B, color = A_CRISPR_target_SMAD4==0)) +
